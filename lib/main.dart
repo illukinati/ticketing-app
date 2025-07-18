@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Yono Bakrie App',
       routerConfig: MyRouter.router,
       theme: ValentineTheme.lightTheme,
-      darkTheme: ValentineTheme.darkTheme,
+      darkTheme: ValentineTheme.lightTheme,
       themeMode: ThemeMode.system,
     );
   }
