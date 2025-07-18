@@ -85,5 +85,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Claude Code
-.claude/
+# Documentation
+CLAUDE.md

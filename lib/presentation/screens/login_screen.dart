@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/login_header.dart';
 import '../widgets/login_form.dart';
 import '../widgets/login_button.dart';
@@ -79,8 +80,8 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
 
-    // Navigate to home screen (placeholder for now)
-    // context.go('/home');
+    // Navigate to home screen
+    context.go('/home');
   }
 
   @override
