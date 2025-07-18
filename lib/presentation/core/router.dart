@@ -8,7 +8,7 @@ class MyRouter {
   static String userDetail = "/user-detail";
 
   static final GoRouter router = GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/',
     routes: [
       GoRoute(
         path: '/',
