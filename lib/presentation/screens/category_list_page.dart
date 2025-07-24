@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../application/category/category_provider.dart';
+import '../../application/core/async_state.dart';
+import '../../domain/entities/category_entity.dart';
+import '../widgets/category/category_list_item.dart';
+import '../widgets/category/category_empty_state.dart';
+import '../widgets/category/category_error_state.dart';
+import '../widgets/category/create_category_dialog.dart';
+import '../widgets/category/edit_category_dialog.dart';
+import '../widgets/category/delete_category_dialog.dart';
 
-class CategoryListPage extends StatefulWidget {
+class CategoryListPage extends ConsumerStatefulWidget {
   const CategoryListPage({super.key});
 
   @override
-  State<CategoryListPage> createState() => _CategoryListPageState();
+  ConsumerState<CategoryListPage> createState() => _CategoryListPageState();
 }
 
-class _CategoryListPageState extends State<CategoryListPage> {
-  final List<Map<String, String>> _categories = [
-    {'name': 'Category A', 'description': 'Premium category'},
-    {'name': 'Category B', 'description': 'Standard category'},
-    {'name': 'Category C', 'description': 'Basic category'},
-    {'name': 'Category D', 'description': 'Entry category'},
-    {'name': 'Category E', 'description': 'Special category'},
-  ];
+class _CategoryListPageState extends ConsumerState<CategoryListPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(categoryListNotifierProvider.notifier).loadCategories();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final categoryState = ref.watch(categoryListNotifierProvider);
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -36,7 +47,7 @@ class _CategoryListPageState extends State<CategoryListPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.add, color: colorScheme.secondary),
-            onPressed: () => _showAddEditDialog(context),
+            onPressed: () => _showCreateDialog(context),
           ),
         ],
       ),
@@ -51,175 +62,62 @@ class _CategoryListPageState extends State<CategoryListPage> {
             ],
           ),
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: _categories.length,
-          itemBuilder: (context, index) {
-            final category = _categories[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                title: Text(category['name'] ?? ''),
-                subtitle: Text(category['description'] ?? ''),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      _showAddEditDialog(
-                        context,
-                        index: index,
-                        initialName: category['name'],
-                        initialDescription: category['description'],
-                      );
-                    } else if (value == 'delete') {
-                      _showDeleteConfirmation(
-                        context,
-                        category['name'] ?? '',
-                        index,
-                      );
-                    }
+        child: categoryState.when(
+          initial: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          data: (categories) {
+            if (categories.isEmpty) {
+              return const CategoryEmptyState();
+            }
+
+            final sortedCategories = List<CategoryEntity>.from(categories)
+              ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: sortedCategories.length,
+              itemBuilder: (context, index) {
+                final category = sortedCategories[index];
+                return CategoryListItem(
+                  category: category,
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Selected ${category.name}')),
+                    );
                   },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit),
-                          SizedBox(width: 8),
-                          Text('Edit'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete),
-                          SizedBox(width: 8),
-                          Text('Delete'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Selected ${category['name']}')),
-                  );
-                },
-              ),
+                  onEdit: () => _showEditDialog(context, category),
+                  onDelete: () => _showDeleteDialog(context, category),
+                );
+              },
             );
           },
+          error: (failure) => CategoryErrorState(
+            failure: failure,
+            onRetry: () => ref.read(categoryListNotifierProvider.notifier).loadCategories(),
+          ),
         ),
       ),
     );
   }
 
-  void _showAddEditDialog(
-    BuildContext context, {
-    int? index,
-    String? initialName,
-    String? initialDescription,
-  }) {
-    final nameController = TextEditingController(text: initialName);
-    final descriptionController = TextEditingController(text: initialDescription);
-    final isEdit = index != null;
-
+  void _showCreateDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('${isEdit ? 'Edit' : 'Add'} Category'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Category Name',
-                hintText: 'Enter category name',
-              ),
-              autofocus: true,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Category Description',
-                hintText: 'Enter category description',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.trim().isNotEmpty) {
-                setState(() {
-                  final item = {
-                    'name': nameController.text.trim(),
-                    'description': descriptionController.text.trim(),
-                  };
-                  
-                  if (isEdit) {
-                    _categories[index] = item;
-                  } else {
-                    _categories.add(item);
-                  }
-                });
-                
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${isEdit ? 'Updated' : 'Added'}: ${nameController.text}',
-                    ),
-                  ),
-                );
-              }
-            },
-            child: Text(isEdit ? 'Update' : 'Add'),
-          ),
-        ],
-      ),
+      builder: (context) => const CreateCategoryDialog(),
     );
   }
 
-  void _showDeleteConfirmation(
-    BuildContext context,
-    String name,
-    int index,
-  ) {
+  void _showEditDialog(BuildContext context, CategoryEntity category) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: Text('Are you sure you want to delete "$name"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              setState(() {
-                _categories.removeAt(index);
-              });
-              
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Deleted: $name')),
-              );
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (context) => EditCategoryDialog(category: category),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, CategoryEntity category) {
+    showDialog(
+      context: context,
+      builder: (context) => DeleteCategoryDialog(category: category),
     );
   }
 }
