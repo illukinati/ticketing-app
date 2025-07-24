@@ -13,4 +13,5 @@ class ApiConstants {
   // Endpoints
   static const String shows = '/shows';
   static const String phases = '/phases';
+  static const String categories = '/categories';
 }
