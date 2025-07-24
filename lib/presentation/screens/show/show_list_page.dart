@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yono_bakrie_app/application/core/async_state.dart';
 import '../../../application/show/show_provider.dart';
 import '../../../domain/entities/show_entity.dart';
@@ -75,15 +76,54 @@ class _ShowListPageState extends ConsumerState<ShowListPage> {
             ],
           ),
         ),
-        child: showState.when(
-          initial: () => const Center(child: Text('Tap refresh to load shows')),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          data: (shows) => _buildShowsList(shows),
-          error: (failure) => ShowErrorState(
-            failure: failure,
-            onRetry: () =>
-                ref.read(showListNotifierProvider.notifier).refresh(),
-          ),
+        child: Column(
+          children: [
+            // Navigation buttons
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.push('/phases'),
+                      icon: const Icon(Icons.timeline),
+                      label: const Text('PHASES'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.push('/categories'),
+                      icon: const Icon(Icons.category),
+                      label: const Text('CATEGORY'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.secondary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: showState.when(
+                initial: () => const Center(child: Text('Tap refresh to load shows')),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                data: (shows) => _buildShowsList(shows),
+                error: (failure) => ShowErrorState(
+                  failure: failure,
+                  onRetry: () =>
+                      ref.read(showListNotifierProvider.notifier).refresh(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

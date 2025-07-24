@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../domain/failures/failure.dart';
+import '../../../domain/values_object/failure.dart';
 
 class ShowErrorState extends StatelessWidget {
   final Failure failure;
@@ -20,24 +20,15 @@ class ShowErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: colorScheme.error,
-          ),
+          Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
           Text(
             'Error: ${failure.message}',
-            style: textTheme.bodyLarge?.copyWith(
-              color: colorScheme.error,
-            ),
+            style: textTheme.bodyLarge?.copyWith(color: colorScheme.error),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: onRetry,
-            child: const Text('Retry'),
-          ),
+          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
         ],
       ),
     );

@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/failures/failure.dart';
+import '../../domain/values_object/failure.dart';
 
 part 'async_state.freezed.dart';
 

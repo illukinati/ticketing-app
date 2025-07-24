@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../domain/entities/show_entity.dart';
-import '../../domain/failures/failure.dart';
+import '../../domain/values_object/failure.dart';
 import '../../domain/repositories/show_repository.dart';
 import '../data_source/show_remote_data_source.dart';
 
@@ -76,10 +76,7 @@ class ShowRepositoryImpl implements ShowRepository {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return NetworkFailure(
-          message: 'Connection timeout',
-          code: 'TIMEOUT',
-        );
+        return NetworkFailure(message: 'Connection timeout', code: 'TIMEOUT');
       case DioExceptionType.connectionError:
         return NetworkFailure(
           message: 'No internet connection',
@@ -88,15 +85,9 @@ class ShowRepositoryImpl implements ShowRepository {
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
         final message = error.response?.data?['message'] ?? 'Server error';
-        return ServerFailure(
-          message: message,
-          code: statusCode?.toString(),
-        );
+        return ServerFailure(message: message, code: statusCode?.toString());
       case DioExceptionType.cancel:
-        return NetworkFailure(
-          message: 'Request cancelled',
-          code: 'CANCELLED',
-        );
+        return NetworkFailure(message: 'Request cancelled', code: 'CANCELLED');
       default:
         return UnknownFailure(
           message: error.message ?? 'Unknown error occurred',
