@@ -5,12 +5,14 @@ class ShowEntity {
   final String name;
   final Date createdAt;
   final Date updatedAt;
+  final DateTime? showTime;
 
   const ShowEntity({
     required this.id,
     required this.name,
     required this.createdAt,
     required this.updatedAt,
+    this.showTime,
   });
 
   @override
@@ -21,14 +23,19 @@ class ShowEntity {
           id == other.id &&
           name == other.name &&
           createdAt == other.createdAt &&
-          updatedAt == other.updatedAt;
+          updatedAt == other.updatedAt &&
+          showTime == other.showTime;
 
   @override
   int get hashCode =>
-      id.hashCode ^ name.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
+      id.hashCode ^ 
+      name.hashCode ^ 
+      createdAt.hashCode ^ 
+      updatedAt.hashCode ^
+      showTime.hashCode;
 
   @override
   String toString() {
-    return 'ShowEntity{id: $id, name: $name, createdAt: $createdAt, updatedAt: $updatedAt}';
+    return 'ShowEntity{id: $id, name: $name, createdAt: $createdAt, updatedAt: $updatedAt, showTime: $showTime}';
   }
 }

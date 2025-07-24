@@ -1,16 +1,18 @@
+import 'package:fpdart/fpdart.dart';
 import '../entities/show_entity.dart';
+import '../failures/failure.dart';
 
 abstract class ShowRepository {
   // Create
-  Future<ShowEntity> createShow(String name);
+  Future<Either<Failure, ShowEntity>> createShow(String name);
   
   // Read
-  Future<List<ShowEntity>> getAllShows();
-  Future<ShowEntity> getShowById(int id);
+  Future<Either<Failure, List<ShowEntity>>> getAllShows();
+  Future<Either<Failure, ShowEntity>> getShowById(int id);
   
   // Update
-  Future<ShowEntity> updateShow(int id, String name);
+  Future<Either<Failure, ShowEntity>> updateShow(int id, String name);
   
   // Delete
-  Future<void> deleteShow(int id);
+  Future<Either<Failure, Unit>> deleteShow(int id);
 }
