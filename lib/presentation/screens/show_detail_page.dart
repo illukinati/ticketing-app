@@ -1,14 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/show_entity.dart';
+import '../../application/event_ticket/event_ticket_provider.dart';
+import '../../application/core/async_state.dart';
+import '../../domain/entities/event_ticket_entity.dart';
 
-class ShowDetailPage extends ConsumerWidget {
+class ShowDetailPage extends ConsumerStatefulWidget {
   final ShowEntity show;
 
   const ShowDetailPage({super.key, required this.show});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ShowDetailPage> createState() => _ShowDetailPageState();
+}
+
+class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(eventTicketByShowNotifierProvider.notifier).loadEventTicketsByShow(widget.show.id);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -78,7 +94,7 @@ class ShowDetailPage extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              show.name,
+                              widget.show.name,
                               style: textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: colorScheme.onSurface,
@@ -90,12 +106,12 @@ class ShowDetailPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  if (show.showTime != null) ...[
+                  if (widget.show.showTime != null) ...[
                     const SizedBox(height: 20),
                     _buildInfoRow(
                       context,
                       'Show Time',
-                      _formatDateTime(show.showTime!),
+                      _formatDateTime(widget.show.showTime!),
                       Icons.schedule,
                     ),
                   ],
@@ -125,14 +141,77 @@ class ShowDetailPage extends ConsumerWidget {
 
             // Tickets List
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _dummyTickets.length,
-                itemBuilder: (context, index) {
-                  final ticket = _dummyTickets[index];
-                  return _buildTicketCard(context, ticket);
-                },
+              child: _buildTicketsList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTicketsList() {
+    final ticketState = ref.watch(eventTicketByShowNotifierProvider);
+
+    return ticketState.when(
+      initial: () => const Center(child: Text('Loading tickets...')),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      data: (tickets) {
+        if (tickets.isEmpty) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.confirmation_number_outlined,
+                  size: 64,
+                  color: Colors.grey,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'No tickets available for this show',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: tickets.length,
+          itemBuilder: (context, index) {
+            final ticket = tickets[index];
+            return _buildEventTicketCard(context, ticket);
+          },
+        );
+      },
+      error: (failure) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Error: ${failure.message}',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
               ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(eventTicketByShowNotifierProvider.notifier)
+                   .loadEventTicketsByShow(widget.show.id);
+              },
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -170,7 +249,7 @@ class ShowDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildTicketCard(BuildContext context, Map<String, dynamic> ticket) {
+  Widget _buildEventTicketCard(BuildContext context, EventTicketEntity ticket) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -191,22 +270,20 @@ class ShowDetailPage extends ConsumerWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: _getTicketStatusColor(
-                      ticket['status'],
-                    ).withValues(alpha: 0.1),
+                    color: _getTicketStatusColor(ticket.status).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    ticket['status'],
+                    ticket.status.value.toUpperCase(),
                     style: textTheme.labelSmall?.copyWith(
-                      color: _getTicketStatusColor(ticket['status']),
+                      color: _getTicketStatusColor(ticket.status),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
                 const Spacer(),
                 Text(
-                  ticket['price'],
+                  'Rp ${_formatPrice(ticket.price)}',
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.primary,
@@ -216,7 +293,7 @@ class ShowDetailPage extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              ticket['category'],
+              ticket.category.name,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -225,60 +302,99 @@ class ShowDetailPage extends ConsumerWidget {
             Row(
               children: [
                 Icon(
-                  Icons.event_seat,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Seat: ${ticket['seat']}',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Icon(
                   Icons.confirmation_number_outlined,
                   size: 16,
                   color: colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Code: ${ticket['code']}',
+                  'Available: ${ticket.availableQty}',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Icon(
+                  Icons.inventory,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Total: ${ticket.originalQty}',
                   style: textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
-            if (ticket['notes'] != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                ticket['notes'],
-                style: textTheme.bodySmall?.copyWith(
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  Icons.timeline,
+                  size: 16,
                   color: colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                Text(
+                  'Phase: ${ticket.phase.name}',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: _parseColor(ticket.category.color),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  ticket.category.color,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Color _getTicketStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'available':
+  Color _getTicketStatusColor(TicketStatus status) {
+    switch (status) {
+      case TicketStatus.available:
         return Colors.green;
-      case 'sold':
-        return Colors.blue;
-      case 'reserved':
+      case TicketStatus.unavailable:
         return Colors.orange;
-      case 'expired':
+      case TicketStatus.soldOut:
         return Colors.red;
-      default:
-        return Colors.grey;
+    }
+  }
+
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    return price.toStringAsFixed(0);
+  }
+
+  Color _parseColor(String colorHex) {
+    try {
+      String hex = colorHex.replaceAll('#', '');
+      if (hex.length == 6) {
+        hex = 'FF$hex';
+      }
+      return Color(int.parse(hex, radix: 16));
+    } catch (e) {
+      return Colors.grey;
     }
   }
 
@@ -286,47 +402,4 @@ class ShowDetailPage extends ConsumerWidget {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  // Dummy ticket data
-  static final List<Map<String, dynamic>> _dummyTickets = [
-    {
-      'category': 'VIP Premium',
-      'price': 'Rp 500,000',
-      'seat': 'A1-05',
-      'code': 'TKT001',
-      'status': 'Available',
-      'notes': 'Front row with premium amenities',
-    },
-    {
-      'category': 'VIP Regular',
-      'price': 'Rp 350,000',
-      'seat': 'B2-12',
-      'code': 'TKT002',
-      'status': 'Sold',
-      'notes': null,
-    },
-    {
-      'category': 'Regular',
-      'price': 'Rp 200,000',
-      'seat': 'C3-08',
-      'code': 'TKT003',
-      'status': 'Reserved',
-      'notes': 'Reserved until 24 hours before show',
-    },
-    {
-      'category': 'Economy',
-      'price': 'Rp 100,000',
-      'seat': 'D4-15',
-      'code': 'TKT004',
-      'status': 'Available',
-      'notes': null,
-    },
-    {
-      'category': 'Student',
-      'price': 'Rp 75,000',
-      'seat': 'E5-20',
-      'code': 'TKT005',
-      'status': 'Expired',
-      'notes': 'Special discount for students',
-    },
-  ];
 }
