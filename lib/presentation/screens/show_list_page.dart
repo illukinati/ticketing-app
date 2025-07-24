@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yono_bakrie_app/application/core/async_state.dart';
-import '../../../application/show/show_provider.dart';
-import '../../../domain/entities/show_entity.dart';
-import '../../widgets/show/show_list_item.dart';
-import '../../widgets/show/show_empty_state.dart';
-import '../../widgets/show/show_error_state.dart';
-import '../../widgets/show/create_show_dialog.dart';
-import '../../widgets/show/edit_show_dialog.dart';
-import '../../widgets/show/delete_show_dialog.dart';
+import '../../application/show/show_provider.dart';
+import '../../domain/entities/show_entity.dart';
+import '../widgets/show/show_list_item.dart';
+import '../widgets/show/show_empty_state.dart';
+import '../widgets/show/show_error_state.dart';
+import '../widgets/show/create_show_dialog.dart';
+import '../widgets/show/edit_show_dialog.dart';
+import '../widgets/show/delete_show_dialog.dart';
 
 class ShowListPage extends ConsumerStatefulWidget {
   const ShowListPage({super.key});
@@ -113,7 +113,8 @@ class _ShowListPageState extends ConsumerState<ShowListPage> {
             ),
             Expanded(
               child: showState.when(
-                initial: () => const Center(child: Text('Tap refresh to load shows')),
+                initial: () =>
+                    const Center(child: Text('Tap refresh to load shows')),
                 loading: () => const Center(child: CircularProgressIndicator()),
                 data: (shows) => _buildShowsList(shows),
                 error: (failure) => ShowErrorState(

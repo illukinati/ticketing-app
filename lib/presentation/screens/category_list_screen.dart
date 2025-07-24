@@ -10,14 +10,14 @@ import '../widgets/category/create_category_dialog.dart';
 import '../widgets/category/edit_category_dialog.dart';
 import '../widgets/category/delete_category_dialog.dart';
 
-class CategoryListPage extends ConsumerStatefulWidget {
-  const CategoryListPage({super.key});
+class CategoryListScreen extends ConsumerStatefulWidget {
+  const CategoryListScreen({super.key});
 
   @override
-  ConsumerState<CategoryListPage> createState() => _CategoryListPageState();
+  ConsumerState<CategoryListScreen> createState() => _CategoryListPageState();
 }
 
-class _CategoryListPageState extends ConsumerState<CategoryListPage> {
+class _CategoryListPageState extends ConsumerState<CategoryListScreen> {
   @override
   void initState() {
     super.initState();
@@ -93,7 +93,9 @@ class _CategoryListPageState extends ConsumerState<CategoryListPage> {
           },
           error: (failure) => CategoryErrorState(
             failure: failure,
-            onRetry: () => ref.read(categoryListNotifierProvider.notifier).loadCategories(),
+            onRetry: () => ref
+                .read(categoryListNotifierProvider.notifier)
+                .loadCategories(),
           ),
         ),
       ),

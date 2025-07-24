@@ -10,14 +10,14 @@ import '../widgets/phase/create_phase_dialog.dart';
 import '../widgets/phase/edit_phase_dialog.dart';
 import '../widgets/phase/delete_phase_dialog.dart';
 
-class PhaseListPage extends ConsumerStatefulWidget {
-  const PhaseListPage({super.key});
+class PhaseListScreen extends ConsumerStatefulWidget {
+  const PhaseListScreen({super.key});
 
   @override
-  ConsumerState<PhaseListPage> createState() => _PhaseListPageState();
+  ConsumerState<PhaseListScreen> createState() => _PhaseListPageState();
 }
 
-class _PhaseListPageState extends ConsumerState<PhaseListPage> {
+class _PhaseListPageState extends ConsumerState<PhaseListScreen> {
   @override
   void initState() {
     super.initState();
