@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'list_view_page.dart';
+import 'show/show_list_page.dart';
 import 'scan_qr_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,7 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const ListViewPage(),
+    const ShowListPage(),
     const ScanQRPage(),
   ];
 
