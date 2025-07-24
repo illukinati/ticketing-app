@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:yono_bakrie_app/infrastructure/model/phase_model.dart';
+import '../core/api_constants.dart';
+import '../model/phase_model.dart';
 
 abstract class PhaseRemoteDataSource {
   Future<List<PhaseModel>> getAllPhases();
@@ -24,33 +24,47 @@ abstract class PhaseRemoteDataSource {
 }
 
 class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
-  final Dio _dio = Dio();
-  final String _baseUrl = dotenv.env['BASE_URL'] ?? '';
-  final String _apiKey = dotenv.env['API_KEY'] ?? '';
+  final Dio dio;
 
-  PhaseRemoteDataSourceImpl() {
-    _dio.options.headers['Authorization'] = 'Bearer $_apiKey';
-    _dio.options.headers['Content-Type'] = 'application/json';
-  }
+  PhaseRemoteDataSourceImpl({Dio? dio})
+      : dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: ApiConstants.baseUrl,
+                headers: ApiConstants.headers,
+                connectTimeout: const Duration(seconds: 30),
+                receiveTimeout: const Duration(seconds: 30),
+              ),
+            );
 
   @override
   Future<List<PhaseModel>> getAllPhases() async {
     try {
-      final response = await _dio.get('$_baseUrl/phases');
-      final List<dynamic> data = response.data;
-      return data.map((json) => PhaseModel.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to fetch phases: $e');
+      final response = await dio.get(ApiConstants.phases);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = response.data;
+        return jsonList.map((json) => PhaseModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load phases');
+      }
+    } on DioException catch (e) {
+      throw Exception('Network error: ${e.message}');
     }
   }
 
   @override
   Future<PhaseModel> getPhaseById(int id) async {
     try {
-      final response = await _dio.get('$_baseUrl/phases/$id');
-      return PhaseModel.fromJson(response.data);
-    } catch (e) {
-      throw Exception('Failed to fetch phase: $e');
+      final response = await dio.get('${ApiConstants.phases}/$id');
+
+      if (response.statusCode == 200) {
+        return PhaseModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load phase');
+      }
+    } on DioException catch (e) {
+      throw Exception('Network error: ${e.message}');
     }
   }
 
@@ -71,10 +85,15 @@ class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
         'active': active,
       };
 
-      final response = await _dio.post('$_baseUrl/phases', data: data);
-      return PhaseModel.fromJson(response.data);
-    } catch (e) {
-      throw Exception('Failed to create phase: $e');
+      final response = await dio.post(ApiConstants.phases, data: data);
+
+      if (response.statusCode == 201) {
+        return PhaseModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to create phase');
+      }
+    } on DioException catch (e) {
+      throw Exception('Network error: ${e.message}');
     }
   }
 
@@ -96,19 +115,28 @@ class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
         'active': active,
       };
 
-      final response = await _dio.put('$_baseUrl/phases/$id', data: data);
-      return PhaseModel.fromJson(response.data);
-    } catch (e) {
-      throw Exception('Failed to update phase: $e');
+      final response = await dio.patch('${ApiConstants.phases}/$id', data: data);
+
+      if (response.statusCode == 200) {
+        return PhaseModel.fromJson(response.data);
+      } else {
+        throw Exception('Failed to update phase');
+      }
+    } on DioException catch (e) {
+      throw Exception('Network error: ${e.message}');
     }
   }
 
   @override
   Future<void> deletePhase(int id) async {
     try {
-      await _dio.delete('$_baseUrl/phases/$id');
-    } catch (e) {
-      throw Exception('Failed to delete phase: $e');
+      final response = await dio.delete('${ApiConstants.phases}/$id');
+
+      if (response.statusCode != 204 && response.statusCode != 200) {
+        throw Exception('Failed to delete phase');
+      }
+    } on DioException catch (e) {
+      throw Exception('Network error: ${e.message}');
     }
   }
 }

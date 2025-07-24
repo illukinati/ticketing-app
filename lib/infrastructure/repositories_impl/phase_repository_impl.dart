@@ -1,33 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../domain/entities/phase_entity.dart';
 import '../../domain/values_object/failure.dart';
 import '../../domain/repositories/phase_repository.dart';
 import '../data_source/phase_remote_data_source.dart';
+import '../core/dio_error_handler.dart';
 
 class PhaseRepositoryImpl implements PhaseRepository {
   final PhaseRemoteDataSource remoteDataSource;
 
   PhaseRepositoryImpl({required this.remoteDataSource});
-
-  @override
-  Future<Either<Failure, List<PhaseEntity>>> getAllPhases() async {
-    try {
-      final phases = await remoteDataSource.getAllPhases();
-      return Right(phases.map((model) => model.toEntity()).toList());
-    } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, PhaseEntity>> getPhaseById(int id) async {
-    try {
-      final phase = await remoteDataSource.getPhaseById(id);
-      return Right(phase.toEntity());
-    } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
-    }
-  }
 
   @override
   Future<Either<Failure, PhaseEntity>> createPhase({
@@ -38,32 +20,43 @@ class PhaseRepositoryImpl implements PhaseRepository {
     required bool active,
   }) async {
     try {
-      if (name.trim().isEmpty) {
-        return const Left(
-          ValidationFailure(message: 'Phase name cannot be empty'),
-        );
-      }
-      if (description.trim().isEmpty) {
-        return const Left(
-          ValidationFailure(message: 'Phase description cannot be empty'),
-        );
-      }
-      if (startDate.isAfter(endDate)) {
-        return const Left(
-          ValidationFailure(message: 'Start date must be before end date'),
-        );
-      }
-
-      final phase = await remoteDataSource.createPhase(
-        name: name.trim(),
-        description: description.trim(),
+      final phaseModel = await remoteDataSource.createPhase(
+        name: name,
+        description: description,
         startDate: startDate,
         endDate: endDate,
         active: active,
       );
-      return Right(phase.toEntity());
+      return Right(phaseModel.toEntity());
+    } on DioException catch (e) {
+      return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PhaseEntity>>> getAllPhases() async {
+    try {
+      final phaseModels = await remoteDataSource.getAllPhases();
+      final entities = phaseModels.map((model) => model.toEntity()).toList();
+      return Right(entities);
+    } on DioException catch (e) {
+      return Left(DioErrorHandler.handleDioError(e));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, PhaseEntity>> getPhaseById(int id) async {
+    try {
+      final phaseModel = await remoteDataSource.getPhaseById(id);
+      return Right(phaseModel.toEntity());
+    } on DioException catch (e) {
+      return Left(DioErrorHandler.handleDioError(e));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
     }
   }
 
@@ -77,33 +70,19 @@ class PhaseRepositoryImpl implements PhaseRepository {
     required bool active,
   }) async {
     try {
-      if (name.trim().isEmpty) {
-        return const Left(
-          ValidationFailure(message: 'Phase name cannot be empty'),
-        );
-      }
-      if (description.trim().isEmpty) {
-        return const Left(
-          ValidationFailure(message: 'Phase description cannot be empty'),
-        );
-      }
-      if (startDate.isAfter(endDate)) {
-        return const Left(
-          ValidationFailure(message: 'Start date must be before end date'),
-        );
-      }
-
-      final phase = await remoteDataSource.updatePhase(
+      final phaseModel = await remoteDataSource.updatePhase(
         id: id,
-        name: name.trim(),
-        description: description.trim(),
+        name: name,
+        description: description,
         startDate: startDate,
         endDate: endDate,
         active: active,
       );
-      return Right(phase.toEntity());
+      return Right(phaseModel.toEntity());
+    } on DioException catch (e) {
+      return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(UnknownFailure(message: e.toString()));
     }
   }
 
@@ -112,8 +91,10 @@ class PhaseRepositoryImpl implements PhaseRepository {
     try {
       await remoteDataSource.deletePhase(id);
       return const Right(unit);
+    } on DioException catch (e) {
+      return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(UnknownFailure(message: e.toString()));
     }
   }
 }

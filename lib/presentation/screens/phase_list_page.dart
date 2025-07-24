@@ -1,25 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yono_bakrie_app/application/core/async_state.dart';
+import '../../application/phase/phase_provider.dart';
+import '../../domain/entities/phase_entity.dart';
+import '../widgets/phase/phase_list_item.dart';
+import '../widgets/phase/phase_empty_state.dart';
+import '../widgets/phase/phase_error_state.dart';
+import '../widgets/phase/create_phase_dialog.dart';
+import '../widgets/phase/edit_phase_dialog.dart';
+import '../widgets/phase/delete_phase_dialog.dart';
 
-class PhaseListPage extends StatefulWidget {
+class PhaseListPage extends ConsumerStatefulWidget {
   const PhaseListPage({super.key});
 
   @override
-  State<PhaseListPage> createState() => _PhaseListPageState();
+  ConsumerState<PhaseListPage> createState() => _PhaseListPageState();
 }
 
-class _PhaseListPageState extends State<PhaseListPage> {
-  final List<Map<String, String>> _phases = [
-    {'name': 'Phase 1', 'description': 'Initial phase'},
-    {'name': 'Phase 2', 'description': 'Development phase'},
-    {'name': 'Phase 3', 'description': 'Testing phase'},
-    {'name': 'Phase 4', 'description': 'Production phase'},
-    {'name': 'Phase 5', 'description': 'Maintenance phase'},
-  ];
+class _PhaseListPageState extends ConsumerState<PhaseListPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load phases when page initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(phaseListNotifierProvider.notifier).loadPhases();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final phaseState = ref.watch(phaseListNotifierProvider);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -35,8 +47,19 @@ class _PhaseListPageState extends State<PhaseListPage> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: Icon(Icons.refresh, color: colorScheme.primary),
+            onPressed: () {
+              ref.read(phaseListNotifierProvider.notifier).refresh();
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.add, color: colorScheme.primary),
-            onPressed: () => _showAddEditDialog(context),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const CreatePhaseDialog(),
+              );
+            },
           ),
         ],
       ),
@@ -51,175 +74,48 @@ class _PhaseListPageState extends State<PhaseListPage> {
             ],
           ),
         ),
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: _phases.length,
-          itemBuilder: (context, index) {
-            final phase = _phases[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                title: Text(phase['name'] ?? ''),
-                subtitle: Text(phase['description'] ?? ''),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      _showAddEditDialog(
-                        context,
-                        index: index,
-                        initialName: phase['name'],
-                        initialDescription: phase['description'],
-                      );
-                    } else if (value == 'delete') {
-                      _showDeleteConfirmation(
-                        context,
-                        phase['name'] ?? '',
-                        index,
-                      );
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit),
-                          SizedBox(width: 8),
-                          Text('Edit'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete),
-                          SizedBox(width: 8),
-                          Text('Delete'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Selected ${phase['name']}')),
-                  );
-                },
-              ),
-            );
+        child: phaseState.when(
+          initial: () =>
+              const Center(child: Text('Tap refresh to load phases')),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          data: (phases) => _buildPhasesList(phases),
+          error: (failure) => PhaseErrorState(
+            failure: failure,
+            onRetry: () =>
+                ref.read(phaseListNotifierProvider.notifier).refresh(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhasesList(List<PhaseEntity> phases) {
+    if (phases.isEmpty) {
+      return const PhaseEmptyState();
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: phases.length,
+      itemBuilder: (context, index) {
+        final phase = phases[index];
+        return PhaseListItem(
+          phase: phase,
+          onTap: () {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Selected: ${phase.name}')));
           },
-        ),
-      ),
-    );
-  }
-
-  void _showAddEditDialog(
-    BuildContext context, {
-    int? index,
-    String? initialName,
-    String? initialDescription,
-  }) {
-    final nameController = TextEditingController(text: initialName);
-    final descriptionController = TextEditingController(text: initialDescription);
-    final isEdit = index != null;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('${isEdit ? 'Edit' : 'Add'} Phase'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Phase Name',
-                hintText: 'Enter phase name',
-              ),
-              autofocus: true,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Phase Description',
-                hintText: 'Enter phase description',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+          onEdit: () => showDialog(
+            context: context,
+            builder: (context) => EditPhaseDialog(phase: phase),
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.trim().isNotEmpty) {
-                setState(() {
-                  final item = {
-                    'name': nameController.text.trim(),
-                    'description': descriptionController.text.trim(),
-                  };
-                  
-                  if (isEdit) {
-                    _phases[index] = item;
-                  } else {
-                    _phases.add(item);
-                  }
-                });
-                
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${isEdit ? 'Updated' : 'Added'}: ${nameController.text}',
-                    ),
-                  ),
-                );
-              }
-            },
-            child: Text(isEdit ? 'Update' : 'Add'),
+          onDelete: () => showDialog(
+            context: context,
+            builder: (context) => DeletePhaseDialog(phase: phase),
           ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(
-    BuildContext context,
-    String name,
-    int index,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Phase'),
-        content: Text('Are you sure you want to delete "$name"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              setState(() {
-                _phases.removeAt(index);
-              });
-              
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Deleted: $name')),
-              );
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
