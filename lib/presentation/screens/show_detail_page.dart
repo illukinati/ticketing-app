@@ -90,22 +90,8 @@ class ShowDetailPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  _buildInfoRow(
-                    context,
-                    'Created',
-                    show.createdAt.toIso8601String(),
-                    Icons.calendar_today,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildInfoRow(
-                    context,
-                    'Updated',
-                    show.updatedAt.toIso8601String(),
-                    Icons.update,
-                  ),
                   if (show.showTime != null) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 20),
                     _buildInfoRow(
                       context,
                       'Show Time',
