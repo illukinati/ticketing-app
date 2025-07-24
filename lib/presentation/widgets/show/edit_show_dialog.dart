@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../application/show/show_provider.dart';
 import '../../../domain/entities/show_entity.dart';
 
@@ -41,7 +42,7 @@ class _EditShowDialogState extends ConsumerState<EditShowDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -52,7 +53,7 @@ class _EditShowDialogState extends ConsumerState<EditShowDialog> {
                   .updateShow(widget.show.id, _controller.text.trim());
 
               if (context.mounted) {
-                Navigator.of(context).pop();
+                context.pop();
                 result.fold(
                   (failure) => ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

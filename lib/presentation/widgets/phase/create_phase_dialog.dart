@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../application/phase/phase_provider.dart';
 
 class CreatePhaseDialog extends ConsumerStatefulWidget {
@@ -25,8 +26,6 @@ class _CreatePhaseDialogState extends ConsumerState<CreatePhaseDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return AlertDialog(
       title: const Text('Create New Phase'),
       content: SingleChildScrollView(
@@ -87,10 +86,7 @@ class _CreatePhaseDialogState extends ConsumerState<CreatePhaseDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
+        TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
         ElevatedButton(
           onPressed: () async {
             if (_nameController.text.trim().isNotEmpty &&
@@ -106,7 +102,7 @@ class _CreatePhaseDialogState extends ConsumerState<CreatePhaseDialog> {
                   );
 
               if (context.mounted) {
-                Navigator.of(context).pop();
+                context.pop();
                 result.fold(
                   (failure) => ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

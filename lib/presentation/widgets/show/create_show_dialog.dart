@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../application/show/show_provider.dart';
 
 class CreateShowDialog extends ConsumerStatefulWidget {
@@ -32,7 +33,7 @@ class _CreateShowDialogState extends ConsumerState<CreateShowDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -43,7 +44,7 @@ class _CreateShowDialogState extends ConsumerState<CreateShowDialog> {
                   .createShow(_controller.text.trim());
 
               if (context.mounted) {
-                Navigator.of(context).pop();
+                context.pop();
                 result.fold(
                   (failure) => ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

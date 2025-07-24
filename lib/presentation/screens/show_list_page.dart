@@ -143,9 +143,7 @@ class _ShowListPageState extends ConsumerState<ShowListPage> {
         return ShowListItem(
           show: show,
           onTap: () {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Selected: ${show.name}')));
+            context.push('/show-detail', extra: show);
           },
           onEdit: () => showDialog(
             context: context,

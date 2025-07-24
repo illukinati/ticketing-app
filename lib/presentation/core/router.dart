@@ -4,12 +4,15 @@ import 'package:yono_bakrie_app/presentation/screens/login_screen.dart';
 import 'package:yono_bakrie_app/presentation/screens/home_screen.dart';
 import 'package:yono_bakrie_app/presentation/screens/phase_list_screen.dart';
 import 'package:yono_bakrie_app/presentation/screens/category_list_screen.dart';
+import 'package:yono_bakrie_app/presentation/screens/show_detail_page.dart';
+import 'package:yono_bakrie_app/domain/entities/show_entity.dart';
 
 class MyRouter {
   static String splash = "/";
   static String login = "/login";
   static String home = "/home";
   static String userDetail = "/user-detail";
+  static String showDetail = "/show-detail";
 
   static final GoRouter router = GoRouter(
     initialLocation: '/',
@@ -21,6 +24,13 @@ class MyRouter {
       GoRoute(
         path: '/categories',
         builder: (_, state) => const CategoryListScreen(),
+      ),
+      GoRoute(
+        path: '/show-detail',
+        builder: (_, state) {
+          final show = state.extra as ShowEntity;
+          return ShowDetailPage(show: show);
+        },
       ),
     ],
   );

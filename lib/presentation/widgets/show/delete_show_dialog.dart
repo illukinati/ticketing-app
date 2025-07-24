@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../application/show/show_provider.dart';
 import '../../../domain/entities/show_entity.dart';
 
@@ -18,7 +19,7 @@ class DeleteShowDialog extends ConsumerWidget {
       content: Text('Are you sure you want to delete "${show.name}"?'),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -31,7 +32,7 @@ class DeleteShowDialog extends ConsumerWidget {
                 .deleteShow(show.id);
 
             if (context.mounted) {
-              Navigator.of(context).pop();
+              context.pop();
               result.fold(
                 (failure) => ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

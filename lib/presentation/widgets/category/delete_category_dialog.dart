@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../application/category/category_provider.dart';
 import '../../../domain/entities/category_entity.dart';
 
@@ -55,7 +56,7 @@ class DeleteCategoryDialog extends ConsumerWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -68,7 +69,7 @@ class DeleteCategoryDialog extends ConsumerWidget {
                 .deleteCategory(category.id);
 
             if (context.mounted) {
-              Navigator.of(context).pop();
+              context.pop();
               result.fold(
                 (failure) => ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
