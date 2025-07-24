@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/show_entity.dart';
+import '../../domain/entities/event_ticket_entity.dart';
 import '../../application/event_ticket/event_ticket_provider.dart';
 import '../../application/core/async_state.dart';
-import '../../domain/entities/event_ticket_entity.dart';
+import '../widgets/show_detail/show_info_card.dart';
+import '../widgets/show_detail/ticket_filter_chips.dart';
+import '../widgets/show_detail/ticket_filter_dialog.dart';
+import '../widgets/show_detail/ticket_list_section.dart';
 
 class ShowDetailPage extends ConsumerStatefulWidget {
   final ShowEntity show;
@@ -15,6 +19,13 @@ class ShowDetailPage extends ConsumerStatefulWidget {
 }
 
 class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
+  // Filter states
+  TicketStatus? selectedStatus;
+  String? selectedPhase;
+  String? selectedCategory;
+  RangeValues? qtyRange;
+  RangeValues? priceRange;
+  
   @override
   void initState() {
     super.initState();
@@ -27,6 +38,7 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final ticketState = ref.watch(eventTicketByShowNotifierProvider);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -55,70 +67,8 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
         child: Column(
           children: [
             // Show Detail Section
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.shadow.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.tv,
-                          size: 32,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.show.name,
-                              style: textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (widget.show.showTime != null) ...[
-                    const SizedBox(height: 20),
-                    _buildInfoRow(
-                      context,
-                      'Show Time',
-                      _formatDateTime(widget.show.showTime!),
-                      Icons.schedule,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
+            ShowInfoCard(show: widget.show),
+            
             // Tickets Section Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -133,15 +83,47 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
                       color: colorScheme.onSurface,
                     ),
                   ),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: colorScheme.primary,
+                    ),
+                    onPressed: () => _showFilterDialog(context),
+                  ),
                 ],
               ),
+            ),
+
+            // Filter chips
+            TicketFilterChips(
+              selectedStatus: selectedStatus,
+              selectedPhase: selectedPhase,
+              selectedCategory: selectedCategory,
+              qtyRange: qtyRange,
+              priceRange: priceRange,
+              onClearStatus: () => setState(() => selectedStatus = null),
+              onClearPhase: () => setState(() => selectedPhase = null),
+              onClearCategory: () => setState(() => selectedCategory = null),
+              onClearQtyRange: () => setState(() => qtyRange = null),
+              onClearPriceRange: () => setState(() => priceRange = null),
+              onClearAll: _clearAllFilters,
+              formatPrice: _formatPrice,
             ),
 
             const SizedBox(height: 16),
 
             // Tickets List
             Expanded(
-              child: _buildTicketsList(),
+              child: TicketListSection(
+                ticketState: ticketState,
+                filteredTickets: _getFilteredTickets(ticketState),
+                hasActiveFilters: _hasActiveFilters(),
+                onClearFilters: _clearAllFilters,
+                onRetry: () => ref.read(eventTicketByShowNotifierProvider.notifier)
+                    .loadEventTicketsByShow(widget.show.id),
+                formatPrice: _formatPrice,
+              ),
             ),
           ],
         ),
@@ -149,257 +131,109 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
     );
   }
 
-  Widget _buildTicketsList() {
-    final ticketState = ref.watch(eventTicketByShowNotifierProvider);
+  bool _hasActiveFilters() {
+    return selectedStatus != null ||
+        selectedPhase != null ||
+        selectedCategory != null ||
+        qtyRange != null ||
+        priceRange != null;
+  }
 
-    return ticketState.when(
-      initial: () => const Center(child: Text('Loading tickets...')),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      data: (tickets) {
-        if (tickets.isEmpty) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.confirmation_number_outlined,
-                  size: 64,
-                  color: Colors.grey,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'No tickets available for this show',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          );
+  void _clearAllFilters() {
+    setState(() {
+      selectedStatus = null;
+      selectedPhase = null;
+      selectedCategory = null;
+      qtyRange = null;
+      priceRange = null;
+    });
+  }
+
+  List<EventTicketEntity> _getFilteredTickets(AsyncState<List<EventTicketEntity>> ticketState) {
+    final tickets = ticketState.maybeWhen(
+      data: (tickets) => tickets,
+      orElse: () => <EventTicketEntity>[],
+    );
+
+    if (!_hasActiveFilters()) return tickets;
+
+    return tickets.where((ticket) {
+      // Status filter
+      if (selectedStatus != null && ticket.status != selectedStatus) {
+        return false;
+      }
+
+      // Phase filter
+      if (selectedPhase != null && ticket.phase.name != selectedPhase) {
+        return false;
+      }
+
+      // Category filter
+      if (selectedCategory != null && ticket.category.name != selectedCategory) {
+        return false;
+      }
+
+      // Quantity range filter
+      if (qtyRange != null) {
+        if (ticket.qty < qtyRange!.start || ticket.qty > qtyRange!.end) {
+          return false;
         }
+      }
 
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: tickets.length,
-          itemBuilder: (context, index) {
-            final ticket = tickets[index];
-            return _buildEventTicketCard(context, ticket);
-          },
-        );
-      },
-      error: (failure) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Error: ${failure.message}',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(eventTicketByShowNotifierProvider.notifier)
-                   .loadEventTicketsByShow(widget.show.id);
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
+      // Price range filter
+      if (priceRange != null) {
+        if (ticket.price < priceRange!.start || ticket.price > priceRange!.end) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
+  }
+
+  void _showFilterDialog(BuildContext context) {
+    final tickets = ref.read(eventTicketByShowNotifierProvider).maybeWhen(
+      data: (tickets) => tickets,
+      orElse: () => <EventTicketEntity>[],
+    );
+    
+    if (tickets.isEmpty) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => TicketFilterDialog(
+        tickets: tickets,
+        initialStatus: selectedStatus,
+        initialPhase: selectedPhase,
+        initialCategory: selectedCategory,
+        initialQtyRange: qtyRange,
+        initialPriceRange: priceRange,
+        formatPrice: _formatPrice,
+        onApply: (status, phase, category, qty, price) {
+          setState(() {
+            selectedStatus = status;
+            selectedPhase = phase;
+            selectedCategory = category;
+            qtyRange = qty;
+            priceRange = price;
+          });
+        },
       ),
     );
-  }
-
-  Widget _buildInfoRow(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEventTicketCard(BuildContext context, EventTicketEntity ticket) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getTicketStatusColor(ticket.status).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    ticket.status.value.toUpperCase(),
-                    style: textTheme.labelSmall?.copyWith(
-                      color: _getTicketStatusColor(ticket.status),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  'Rp ${_formatPrice(ticket.price)}',
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              ticket.category.name,
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(
-                  Icons.confirmation_number_outlined,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Available: ${ticket.availableQty}',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Icon(
-                  Icons.inventory,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Total: ${ticket.originalQty}',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(
-                  Icons.timeline,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Phase: ${ticket.phase.name}',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: _parseColor(ticket.category.color),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  ticket.category.color,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontFamily: 'monospace',
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getTicketStatusColor(TicketStatus status) {
-    switch (status) {
-      case TicketStatus.available:
-        return Colors.green;
-      case TicketStatus.unavailable:
-        return Colors.orange;
-      case TicketStatus.soldOut:
-        return Colors.red;
-    }
   }
 
   String _formatPrice(double price) {
-    if (price == price.toInt()) {
-      return price.toInt().toString();
-    }
-    return price.toStringAsFixed(0);
-  }
-
-  Color _parseColor(String colorHex) {
-    try {
-      String hex = colorHex.replaceAll('#', '');
-      if (hex.length == 6) {
-        hex = 'FF$hex';
+    final priceInt = price.toInt();
+    final priceString = priceInt.toString();
+    final result = StringBuffer();
+    
+    for (int i = 0; i < priceString.length; i++) {
+      if ((priceString.length - i) % 3 == 0 && i != 0) {
+        result.write(',');
       }
-      return Color(int.parse(hex, radix: 16));
-    } catch (e) {
-      return Colors.grey;
+      result.write(priceString[i]);
     }
+    
+    return result.toString();
   }
-
-  String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
-
 }

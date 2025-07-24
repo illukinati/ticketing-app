@@ -22,7 +22,7 @@ class _ShowListPageState extends ConsumerState<ShowListPage> {
   @override
   void initState() {
     super.initState();
-    // Load shows when page initializes
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(showListNotifierProvider.notifier).loadShows();
     });
