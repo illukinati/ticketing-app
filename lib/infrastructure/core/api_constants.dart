@@ -15,4 +15,5 @@ class ApiConstants {
   static const String phases = '/phases';
   static const String categories = '/categories';
   static const String eventTickets = '/event_tickets';
+  static const String purchases = '/purchases';
 }
