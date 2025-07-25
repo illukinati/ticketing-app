@@ -5,6 +5,7 @@ import 'package:yono_bakrie_app/presentation/screens/home_screen.dart';
 import 'package:yono_bakrie_app/presentation/screens/phase_list_screen.dart';
 import 'package:yono_bakrie_app/presentation/screens/category_list_screen.dart';
 import 'package:yono_bakrie_app/presentation/screens/show_detail_page.dart';
+import 'package:yono_bakrie_app/presentation/screens/purchased_tickets_page.dart';
 import 'package:yono_bakrie_app/domain/entities/show_entity.dart';
 
 class MyRouter {
@@ -30,6 +31,13 @@ class MyRouter {
         builder: (_, state) {
           final show = state.extra as ShowEntity;
           return ShowDetailPage(show: show);
+        },
+      ),
+      GoRoute(
+        path: '/purchased-tickets/:showId',
+        builder: (_, state) {
+          final show = state.extra as ShowEntity;
+          return PurchasedTicketsPage(show: show);
         },
       ),
     ],

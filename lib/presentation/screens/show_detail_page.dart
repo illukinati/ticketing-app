@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../core/models/ticket_filter_state.dart';
 import '../core/utils/error_handler.dart';
 import '../core/models/ticket_action.dart';
@@ -55,6 +56,16 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
         ),
         backgroundColor: colorScheme.surface,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.receipt_long, color: colorScheme.primary),
+            tooltip: 'View Purchased Tickets',
+            onPressed: () => context.push(
+              '/purchased-tickets/${widget.show.id}',
+              extra: widget.show,
+            ),
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
