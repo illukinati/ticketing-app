@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/event_ticket_entity.dart';
 import '../../../application/core/async_state.dart';
+import '../../core/models/ticket_action.dart';
 import 'ticket_card.dart';
 
 class TicketListSection extends StatelessWidget {
@@ -10,7 +10,7 @@ class TicketListSection extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback onRetry;
-  final String Function(double) formatPrice;
+  final Function(TicketAction)? onTicketAction;
 
   const TicketListSection({
     super.key,
@@ -19,7 +19,7 @@ class TicketListSection extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onClearFilters,
     required this.onRetry,
-    required this.formatPrice,
+    this.onTicketAction,
   });
 
   @override
@@ -40,13 +40,10 @@ class TicketListSection extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  hasActiveFilters 
-                    ? 'No tickets match the selected filters'
-                    : 'No tickets available for this show',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  hasActiveFilters
+                      ? 'No tickets match the selected filters'
+                      : 'No tickets available for this show',
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 if (hasActiveFilters) ...[
                   const SizedBox(height: 16),
@@ -67,7 +64,7 @@ class TicketListSection extends StatelessWidget {
             final ticket = filteredTickets[index];
             return TicketCard(
               ticket: ticket,
-              formatPrice: formatPrice,
+              onAction: onTicketAction,
             );
           },
         );
@@ -84,16 +81,11 @@ class TicketListSection extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Error: ${failure.message}',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),

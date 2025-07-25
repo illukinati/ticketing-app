@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../domain/entities/event_ticket_entity.dart';
+import '../../core/extensions/price_extension.dart';
 
 class TicketFilterDialog extends StatefulWidget {
   final List<EventTicketEntity> tickets;
@@ -15,7 +17,6 @@ class TicketFilterDialog extends StatefulWidget {
     RangeValues? qtyRange,
     RangeValues? priceRange,
   ) onApply;
-  final String Function(double) formatPrice;
 
   const TicketFilterDialog({
     super.key,
@@ -26,7 +27,6 @@ class TicketFilterDialog extends StatefulWidget {
     this.initialQtyRange,
     this.initialPriceRange,
     required this.onApply,
-    required this.formatPrice,
   });
 
   @override
@@ -184,8 +184,8 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
                 max: maxPrice,
                 divisions: ((maxPrice - minPrice) / 1000).round(),
                 labels: RangeLabels(
-                  'Rp ${widget.formatPrice(tempPriceRange?.start ?? minPrice)}',
-                  'Rp ${widget.formatPrice(tempPriceRange?.end ?? maxPrice)}',
+                  (tempPriceRange?.start ?? minPrice).toFormattedPriceWithCurrency(),
+                  (tempPriceRange?.end ?? maxPrice).toFormattedPriceWithCurrency(),
                 ),
                 onChanged: (values) {
                   setState(() {
@@ -194,7 +194,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
                 },
               ),
               Text(
-                'From Rp ${widget.formatPrice(tempPriceRange?.start ?? minPrice)} to Rp ${widget.formatPrice(tempPriceRange?.end ?? maxPrice)}',
+                'From ${(tempPriceRange?.start ?? minPrice).toFormattedPriceWithCurrency()} to ${(tempPriceRange?.end ?? maxPrice).toFormattedPriceWithCurrency()}',
                 style: textTheme.bodySmall,
               ),
             ] else
@@ -222,7 +222,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
           child: const Text('Reset'),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -234,7 +234,7 @@ class _TicketFilterDialogState extends State<TicketFilterDialog> {
               tempQtyRange,
               tempPriceRange,
             );
-            Navigator.of(context).pop();
+            context.pop();
           },
           child: const Text('Apply'),
         ),

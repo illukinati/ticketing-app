@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/models/ticket_filter_state.dart';
+import '../core/utils/error_handler.dart';
+import '../core/models/ticket_action.dart';
 import '../../domain/entities/show_entity.dart';
 import '../../domain/entities/event_ticket_entity.dart';
 import '../../application/event_ticket/event_ticket_provider.dart';
@@ -8,6 +11,9 @@ import '../widgets/show_detail/show_info_card.dart';
 import '../widgets/show_detail/ticket_filter_chips.dart';
 import '../widgets/show_detail/ticket_filter_dialog.dart';
 import '../widgets/show_detail/ticket_list_section.dart';
+import '../widgets/show_detail/create_ticket_dialog.dart';
+import '../widgets/show_detail/edit_ticket_dialog.dart';
+import '../widgets/show_detail/delete_ticket_dialog.dart';
 
 class ShowDetailPage extends ConsumerStatefulWidget {
   final ShowEntity show;
@@ -19,18 +25,15 @@ class ShowDetailPage extends ConsumerStatefulWidget {
 }
 
 class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
-  // Filter states
-  TicketStatus? selectedStatus;
-  String? selectedPhase;
-  String? selectedCategory;
-  RangeValues? qtyRange;
-  RangeValues? priceRange;
-  
+  TicketFilterState _filterState = const TicketFilterState.empty();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(eventTicketByShowNotifierProvider.notifier).loadEventTicketsByShow(widget.show.id);
+      ref
+          .read(eventTicketListNotifierProvider.notifier)
+          .loadEventTicketsByShow(widget.show.id);
     });
   }
 
@@ -38,7 +41,7 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final ticketState = ref.watch(eventTicketByShowNotifierProvider);
+    final ticketState = ref.watch(eventTicketListNotifierProvider);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -68,7 +71,7 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
           children: [
             // Show Detail Section
             ShowInfoCard(show: widget.show),
-            
+
             // Tickets Section Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -85,10 +88,11 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: Icon(
-                      Icons.filter_list,
-                      color: colorScheme.primary,
-                    ),
+                    icon: Icon(Icons.add, color: colorScheme.primary),
+                    onPressed: () => _showCreateTicketDialog(context),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.filter_list, color: colorScheme.primary),
                     onPressed: () => _showFilterDialog(context),
                   ),
                 ],
@@ -97,18 +101,28 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
 
             // Filter chips
             TicketFilterChips(
-              selectedStatus: selectedStatus,
-              selectedPhase: selectedPhase,
-              selectedCategory: selectedCategory,
-              qtyRange: qtyRange,
-              priceRange: priceRange,
-              onClearStatus: () => setState(() => selectedStatus = null),
-              onClearPhase: () => setState(() => selectedPhase = null),
-              onClearCategory: () => setState(() => selectedCategory = null),
-              onClearQtyRange: () => setState(() => qtyRange = null),
-              onClearPriceRange: () => setState(() => priceRange = null),
+              selectedStatus: _filterState.selectedStatus,
+              selectedPhase: _filterState.selectedPhase,
+              selectedCategory: _filterState.selectedCategory,
+              qtyRange: _filterState.qtyRange,
+              priceRange: _filterState.priceRange,
+              onClearStatus: () => setState(
+                () => _filterState = _filterState.copyWith(clearStatus: true),
+              ),
+              onClearPhase: () => setState(
+                () => _filterState = _filterState.copyWith(clearPhase: true),
+              ),
+              onClearCategory: () => setState(
+                () => _filterState = _filterState.copyWith(clearCategory: true),
+              ),
+              onClearQtyRange: () => setState(
+                () => _filterState = _filterState.copyWith(clearQtyRange: true),
+              ),
+              onClearPriceRange: () => setState(
+                () =>
+                    _filterState = _filterState.copyWith(clearPriceRange: true),
+              ),
               onClearAll: _clearAllFilters,
-              formatPrice: _formatPrice,
             ),
 
             const SizedBox(height: 16),
@@ -118,11 +132,12 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
               child: TicketListSection(
                 ticketState: ticketState,
                 filteredTickets: _getFilteredTickets(ticketState),
-                hasActiveFilters: _hasActiveFilters(),
+                hasActiveFilters: _filterState.hasActiveFilters,
                 onClearFilters: _clearAllFilters,
-                onRetry: () => ref.read(eventTicketByShowNotifierProvider.notifier)
+                onRetry: () => ref
+                    .read(eventTicketListNotifierProvider.notifier)
                     .loadEventTicketsByShow(widget.show.id),
-                formatPrice: _formatPrice,
+                onTicketAction: _handleTicketAction,
               ),
             ),
           ],
@@ -131,109 +146,116 @@ class _ShowDetailPageState extends ConsumerState<ShowDetailPage> {
     );
   }
 
-  bool _hasActiveFilters() {
-    return selectedStatus != null ||
-        selectedPhase != null ||
-        selectedCategory != null ||
-        qtyRange != null ||
-        priceRange != null;
-  }
-
   void _clearAllFilters() {
     setState(() {
-      selectedStatus = null;
-      selectedPhase = null;
-      selectedCategory = null;
-      qtyRange = null;
-      priceRange = null;
+      _filterState = const TicketFilterState.empty();
     });
   }
 
-  List<EventTicketEntity> _getFilteredTickets(AsyncState<List<EventTicketEntity>> ticketState) {
+  List<EventTicketEntity> _getFilteredTickets(
+    AsyncState<List<EventTicketEntity>> ticketState,
+  ) {
     final tickets = ticketState.maybeWhen(
       data: (tickets) => tickets,
       orElse: () => <EventTicketEntity>[],
     );
 
-    if (!_hasActiveFilters()) return tickets;
-
-    return tickets.where((ticket) {
-      // Status filter
-      if (selectedStatus != null && ticket.status != selectedStatus) {
-        return false;
-      }
-
-      // Phase filter
-      if (selectedPhase != null && ticket.phase.name != selectedPhase) {
-        return false;
-      }
-
-      // Category filter
-      if (selectedCategory != null && ticket.category.name != selectedCategory) {
-        return false;
-      }
-
-      // Quantity range filter
-      if (qtyRange != null) {
-        if (ticket.qty < qtyRange!.start || ticket.qty > qtyRange!.end) {
-          return false;
-        }
-      }
-
-      // Price range filter
-      if (priceRange != null) {
-        if (ticket.price < priceRange!.start || ticket.price > priceRange!.end) {
-          return false;
-        }
-      }
-
-      return true;
-    }).toList();
+    return _filterState.applyFilters(tickets);
   }
 
   void _showFilterDialog(BuildContext context) {
-    final tickets = ref.read(eventTicketByShowNotifierProvider).maybeWhen(
-      data: (tickets) => tickets,
-      orElse: () => <EventTicketEntity>[],
-    );
-    
+    final tickets = ref
+        .read(eventTicketListNotifierProvider)
+        .maybeWhen(
+          data: (tickets) => tickets,
+          orElse: () => <EventTicketEntity>[],
+        );
+
     if (tickets.isEmpty) return;
 
     showDialog(
       context: context,
       builder: (context) => TicketFilterDialog(
         tickets: tickets,
-        initialStatus: selectedStatus,
-        initialPhase: selectedPhase,
-        initialCategory: selectedCategory,
-        initialQtyRange: qtyRange,
-        initialPriceRange: priceRange,
-        formatPrice: _formatPrice,
+        initialStatus: _filterState.selectedStatus,
+        initialPhase: _filterState.selectedPhase,
+        initialCategory: _filterState.selectedCategory,
+        initialQtyRange: _filterState.qtyRange,
+        initialPriceRange: _filterState.priceRange,
         onApply: (status, phase, category, qty, price) {
           setState(() {
-            selectedStatus = status;
-            selectedPhase = phase;
-            selectedCategory = category;
-            qtyRange = qty;
-            priceRange = price;
+            _filterState = TicketFilterState(
+              selectedStatus: status,
+              selectedPhase: phase,
+              selectedCategory: category,
+              qtyRange: qty,
+              priceRange: price,
+            );
           });
         },
       ),
     );
   }
 
-  String _formatPrice(double price) {
-    final priceInt = price.toInt();
-    final priceString = priceInt.toString();
-    final result = StringBuffer();
-    
-    for (int i = 0; i < priceString.length; i++) {
-      if ((priceString.length - i) % 3 == 0 && i != 0) {
-        result.write(',');
-      }
-      result.write(priceString[i]);
+  void _showCreateTicketDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => CreateTicketDialog(show: widget.show),
+    );
+  }
+
+  void _handleTicketAction(TicketAction action) {
+    switch (action.type) {
+      case TicketActionType.edit:
+        _showEditTicketDialog(action.ticket);
+        break;
+      case TicketActionType.delete:
+        _showDeleteTicketDialog(action.ticket);
+        break;
+      case TicketActionType.statusChange:
+        _handleStatusChange(action.ticket, action.newStatus!);
+        break;
     }
-    
-    return result.toString();
+  }
+
+  void _showEditTicketDialog(EventTicketEntity ticket) {
+    showDialog(
+      context: context,
+      builder: (context) => EditTicketDialog(ticket: ticket),
+    );
+  }
+
+  void _showDeleteTicketDialog(EventTicketEntity ticket) {
+    showDialog(
+      context: context,
+      builder: (context) => DeleteTicketDialog(ticket: ticket),
+    );
+  }
+
+  void _handleStatusChange(
+    EventTicketEntity ticket,
+    TicketStatus newStatus,
+  ) async {
+    final result = await ref
+        .read(eventTicketListNotifierProvider.notifier)
+        .updateEventTicketStatus(
+          id: ticket.id,
+          status: newStatus,
+          showId: ticket.showId,
+        );
+
+    if (mounted) {
+      ErrorHandler.handleResult(
+        context,
+        result,
+        successMessage: 'Status updated to ${newStatus.value.toUpperCase()}',
+        onSuccess: (_) {
+          // Refresh the ticket list
+          ref
+              .read(eventTicketListNotifierProvider.notifier)
+              .loadEventTicketsByShow(widget.show.id);
+        },
+      );
+    }
   }
 }

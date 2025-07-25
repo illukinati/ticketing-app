@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/event_ticket_entity.dart';
+import '../../core/extensions/price_extension.dart';
 
 class TicketFilterChips extends StatelessWidget {
   final TicketStatus? selectedStatus;
@@ -13,7 +14,6 @@ class TicketFilterChips extends StatelessWidget {
   final VoidCallback onClearQtyRange;
   final VoidCallback onClearPriceRange;
   final VoidCallback onClearAll;
-  final String Function(double) formatPrice;
 
   const TicketFilterChips({
     super.key,
@@ -28,7 +28,6 @@ class TicketFilterChips extends StatelessWidget {
     required this.onClearQtyRange,
     required this.onClearPriceRange,
     required this.onClearAll,
-    required this.formatPrice,
   });
 
   bool get hasActiveFilters =>
@@ -93,7 +92,7 @@ class TicketFilterChips extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Chip(
-                    label: Text('Price: ${formatPrice(priceRange!.start)}-${formatPrice(priceRange!.end)}'),
+                    label: Text('Price: ${priceRange!.start.toFormattedPrice()}-${priceRange!.end.toFormattedPrice()}'),
                     onDeleted: onClearPriceRange,
                     deleteIconColor: colorScheme.primary,
                   ),
