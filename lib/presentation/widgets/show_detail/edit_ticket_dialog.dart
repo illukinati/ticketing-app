@@ -134,20 +134,7 @@ class _EditTicketDialogState extends ConsumerState<EditTicketDialog> {
                 items: categories.map((category) {
                   return DropdownMenuItem(
                     value: category,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: _parseColor(category.color),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(category.name),
-                      ],
-                    ),
+                    child: Text(category.name),
                   );
                 }).toList(),
                 onChanged: (value) =>
@@ -220,33 +207,6 @@ class _EditTicketDialogState extends ConsumerState<EditTicketDialog> {
                 onChanged: (value) => setState(() => _selectedStatus = value!),
               ),
 
-              // Show ticket movement info if applicable
-              if (widget.ticket.hasMoved) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: Colors.blue,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Moved ${widget.ticket.movedQty} tickets from phase ${widget.ticket.movedFromPhaseId}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -289,7 +249,6 @@ class _EditTicketDialogState extends ConsumerState<EditTicketDialog> {
           categoryId: _selectedCategory.id,
           status: _selectedStatus,
           originalQty: widget.ticket.originalQty,
-          movedFromPhaseId: widget.ticket.movedFromPhaseId,
           movedQty: widget.ticket.movedQty,
         );
 
@@ -308,18 +267,6 @@ class _EditTicketDialogState extends ConsumerState<EditTicketDialog> {
               .loadEventTicketsByShow(widget.ticket.showId);
         },
       );
-    }
-  }
-
-  Color _parseColor(String colorHex) {
-    try {
-      String hex = colorHex.replaceAll('#', '');
-      if (hex.length == 6) {
-        hex = 'FF$hex';
-      }
-      return Color(int.parse(hex, radix: 16));
-    } catch (e) {
-      return Colors.grey;
     }
   }
 }

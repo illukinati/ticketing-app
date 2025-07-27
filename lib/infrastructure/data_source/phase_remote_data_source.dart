@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import '../../domain/values_object/failure.dart';
 import '../core/api_constants.dart';
+import '../core/dio_error_handler.dart';
 import '../model/phase_model.dart';
 
 abstract class PhaseRemoteDataSource {
@@ -46,10 +48,15 @@ class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => PhaseModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load phases');
+        throw ServerFailure(
+          message: 'Failed to load phases',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -61,10 +68,15 @@ class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
       if (response.statusCode == 200) {
         return PhaseModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to load phase');
+        throw ServerFailure(
+          message: 'Failed to load phase',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -90,10 +102,15 @@ class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
       if (response.statusCode == 201) {
         return PhaseModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to create phase');
+        throw ServerFailure(
+          message: 'Failed to create phase',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -120,10 +137,15 @@ class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
       if (response.statusCode == 200) {
         return PhaseModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update phase');
+        throw ServerFailure(
+          message: 'Failed to update phase',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -133,10 +155,15 @@ class PhaseRemoteDataSourceImpl implements PhaseRemoteDataSource {
       final response = await dio.delete('${ApiConstants.phases}/$id');
 
       if (response.statusCode != 204 && response.statusCode != 200) {
-        throw Exception('Failed to delete phase');
+        throw ServerFailure(
+          message: 'Failed to delete phase',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 }

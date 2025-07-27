@@ -12,14 +12,18 @@ class IndividualTicketModel extends IndividualTicketEntity {
 
   factory IndividualTicketModel.fromJson(Map<String, dynamic> json) {
     return IndividualTicketModel(
-      ticketId: json['ticket_id'] as int,
-      ticketNumber: json['ticket_number'] as int,
-      used: json['used'] as bool,
-      usedAt: json['used_at'] != null 
+      ticketId: json['ticket_id'] as int? ?? 0,
+      ticketNumber: json['ticket_number'] as int? ?? 0,
+      used: json['used'] as bool? ?? false,
+      usedAt: json['used_at'] != null
           ? DateTime.parse(json['used_at'] as String)
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 
@@ -57,6 +61,7 @@ class IndividualTicketModel extends IndividualTicketEntity {
     );
   }
 
+  @override
   IndividualTicketModel copyWith({
     int? ticketId,
     int? ticketNumber,

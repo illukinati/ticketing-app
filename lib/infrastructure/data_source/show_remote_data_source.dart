@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import '../../domain/values_object/failure.dart';
 import '../core/api_constants.dart';
+import '../core/dio_error_handler.dart';
 import '../model/show_model.dart';
 
 abstract class ShowRemoteDataSource {
@@ -34,10 +36,15 @@ class ShowRemoteDataSourceImpl implements ShowRemoteDataSource {
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => ShowModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load shows');
+        throw ServerFailure(
+          message: 'Failed to load shows',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -49,10 +56,15 @@ class ShowRemoteDataSourceImpl implements ShowRemoteDataSource {
       if (response.statusCode == 200) {
         return ShowModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to load show');
+        throw ServerFailure(
+          message: 'Failed to load show',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -64,10 +76,15 @@ class ShowRemoteDataSourceImpl implements ShowRemoteDataSource {
       if (response.statusCode == 201) {
         return ShowModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to create show');
+        throw ServerFailure(
+          message: 'Failed to create show',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -82,10 +99,15 @@ class ShowRemoteDataSourceImpl implements ShowRemoteDataSource {
       if (response.statusCode == 200) {
         return ShowModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update show');
+        throw ServerFailure(
+          message: 'Failed to update show',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -95,10 +117,15 @@ class ShowRemoteDataSourceImpl implements ShowRemoteDataSource {
       final response = await dio.delete('${ApiConstants.shows}/$id');
 
       if (response.statusCode != 204 && response.statusCode != 200) {
-        throw Exception('Failed to delete show');
+        throw ServerFailure(
+          message: 'Failed to delete show',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 }

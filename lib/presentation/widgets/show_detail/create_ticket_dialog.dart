@@ -99,20 +99,7 @@ class _CreateTicketDialogState extends ConsumerState<CreateTicketDialog> {
                 items: categories.map((category) {
                   return DropdownMenuItem(
                     value: category,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: _parseColor(category.color),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(category.name),
-                      ],
-                    ),
+                    child: Text(category.name),
                   );
                 }).toList(),
                 onChanged: (value) => setState(() => _selectedCategory = value),
@@ -240,15 +227,4 @@ class _CreateTicketDialogState extends ConsumerState<CreateTicketDialog> {
     }
   }
 
-  Color _parseColor(String colorHex) {
-    try {
-      String hex = colorHex.replaceAll('#', '');
-      if (hex.length == 6) {
-        hex = 'FF$hex';
-      }
-      return Color(int.parse(hex, radix: 16));
-    } catch (e) {
-      return Colors.grey;
-    }
-  }
 }

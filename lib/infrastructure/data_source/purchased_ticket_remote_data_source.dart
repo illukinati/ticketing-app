@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import '../../domain/values_object/failure.dart';
 import '../core/api_constants.dart';
+import '../core/dio_error_handler.dart';
 import '../model/purchased_ticket_model.dart';
 import '../model/individual_ticket_model.dart';
 
@@ -67,10 +69,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => PurchasedTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load purchased tickets');
+        throw ServerFailure(
+            message: 'Failed to load purchased tickets',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -83,10 +90,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => PurchasedTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load purchased tickets by show');
+        throw ServerFailure(
+            message: 'Failed to load purchased tickets by show',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -99,10 +111,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => PurchasedTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load purchased tickets by event ticket');
+        throw ServerFailure(
+            message: 'Failed to load purchased tickets by event ticket',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -115,10 +132,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => PurchasedTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load purchased tickets by payment status');
+        throw ServerFailure(
+            message: 'Failed to load purchased tickets by payment status',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -130,10 +152,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 200) {
         return PurchasedTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to load purchased ticket');
+        throw ServerFailure(
+            message: 'Failed to load purchased ticket',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -161,10 +188,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 201) {
         return PurchasedTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to create purchased ticket');
+        throw ServerFailure(
+            message: 'Failed to create purchased ticket',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -185,10 +217,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 200) {
         return PurchasedTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update payment status');
+        throw ServerFailure(
+            message: 'Failed to update payment status',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -210,10 +247,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 200) {
         return PurchasedTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update purchased ticket');
+        throw ServerFailure(
+            message: 'Failed to update purchased ticket',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -223,10 +265,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       final response = await dio.delete('${ApiConstants.purchases}/$id');
 
       if (response.statusCode != 204 && response.statusCode != 200) {
-        throw Exception('Failed to delete purchased ticket');
+        throw ServerFailure(
+            message: 'Failed to delete purchased ticket',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -246,10 +293,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 200) {
         return IndividualTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to mark ticket as used');
+        throw ServerFailure(
+            message: 'Failed to mark ticket as used',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -266,10 +318,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 200) {
         return IndividualTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to mark ticket as unused');
+        throw ServerFailure(
+            message: 'Failed to mark ticket as unused',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -281,10 +338,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 200) {
         return IndividualTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to load individual ticket');
+        throw ServerFailure(
+            message: 'Failed to load individual ticket',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -297,10 +359,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => IndividualTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load individual tickets');
+        throw ServerFailure(
+            message: 'Failed to load individual tickets',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -325,10 +392,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => PurchasedTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to search purchased tickets');
+        throw ServerFailure(
+            message: 'Failed to search purchased tickets',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -340,10 +412,15 @@ class PurchasedTicketRemoteDataSourceImpl implements PurchasedTicketRemoteDataSo
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to load purchase statistics');
+        throw ServerFailure(
+            message: 'Failed to load purchase statistics',
+            code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 }

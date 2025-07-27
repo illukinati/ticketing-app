@@ -16,10 +16,12 @@ class ShowRepositoryImpl implements ShowRepository {
     try {
       final showModel = await remoteDataSource.createShow(name);
       return Right(showModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -29,10 +31,12 @@ class ShowRepositoryImpl implements ShowRepository {
       final showModels = await remoteDataSource.getAllShows();
       final entities = showModels.map((model) => model.toEntity()).toList();
       return Right(entities);
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -41,10 +45,12 @@ class ShowRepositoryImpl implements ShowRepository {
     try {
       final showModel = await remoteDataSource.getShowById(id);
       return Right(showModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -53,10 +59,12 @@ class ShowRepositoryImpl implements ShowRepository {
     try {
       final showModel = await remoteDataSource.updateShow(id, name);
       return Right(showModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -65,10 +73,12 @@ class ShowRepositoryImpl implements ShowRepository {
     try {
       await remoteDataSource.deleteShow(id);
       return const Right(unit);
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 

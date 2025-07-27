@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import '../../domain/values_object/failure.dart';
 import '../core/api_constants.dart';
+import '../core/dio_error_handler.dart';
 import '../model/category_model.dart';
 
 abstract class CategoryRemoteDataSource {
@@ -44,10 +46,15 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => CategoryModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load categories');
+        throw ServerFailure(
+          message: 'Failed to load categories',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -59,10 +66,15 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       if (response.statusCode == 200) {
         return CategoryModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to load category');
+        throw ServerFailure(
+          message: 'Failed to load category',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -86,10 +98,15 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       if (response.statusCode == 201) {
         return CategoryModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to create category');
+        throw ServerFailure(
+          message: 'Failed to create category',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -114,10 +131,15 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       if (response.statusCode == 200) {
         return CategoryModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update category');
+        throw ServerFailure(
+          message: 'Failed to update category',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -127,10 +149,15 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       final response = await dio.delete('${ApiConstants.categories}/$id');
 
       if (response.statusCode != 204 && response.statusCode != 200) {
-        throw Exception('Failed to delete category');
+        throw ServerFailure(
+          message: 'Failed to delete category',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 }

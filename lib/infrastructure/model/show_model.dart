@@ -19,9 +19,9 @@ class ShowModel {
   factory ShowModel.fromJson(Map<String, dynamic> json) {
     return ShowModel(
       id: json['id'] as int,
-      name: json['name'] as String,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
+      name: json['name'] as String? ?? '',
+      createdAt: json['created_at'] as String? ?? '',
+      updatedAt: json['updated_at'] as String? ?? '',
       showTime: json['show_time'] as String?,
     );
   }

@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import '../../domain/values_object/failure.dart';
 import '../core/api_constants.dart';
+import '../core/dio_error_handler.dart';
 import '../model/event_ticket_model.dart';
 
 abstract class EventTicketRemoteDataSource {
@@ -13,7 +15,6 @@ abstract class EventTicketRemoteDataSource {
     required int categoryId,
     required String status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   });
   Future<EventTicketModel> updateEventTicket({
@@ -25,7 +26,6 @@ abstract class EventTicketRemoteDataSource {
     required int categoryId,
     required String status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   });
   Future<void> deleteEventTicket(int id);
@@ -58,10 +58,15 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => EventTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load event tickets by category');
+        throw ServerFailure(
+          message: 'Failed to load event tickets by category',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -74,10 +79,15 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => EventTicketModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load event tickets by show');
+        throw ServerFailure(
+          message: 'Failed to load event tickets by show',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -90,7 +100,6 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
     required int categoryId,
     required String status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   }) async {
     try {
@@ -105,19 +114,21 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
         'moved_qty': movedQty,
       };
 
-      if (movedFromPhaseId != null) {
-        data['moved_from_phase_id'] = movedFromPhaseId;
-      }
 
       final response = await dio.post(ApiConstants.eventTickets, data: data);
 
       if (response.statusCode == 201) {
         return EventTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to create event ticket');
+        throw ServerFailure(
+          message: 'Failed to create event ticket',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -131,7 +142,6 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
     required int categoryId,
     required String status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   }) async {
     try {
@@ -146,19 +156,21 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
         'moved_qty': movedQty,
       };
 
-      if (movedFromPhaseId != null) {
-        data['moved_from_phase_id'] = movedFromPhaseId;
-      }
 
       final response = await dio.patch('${ApiConstants.eventTickets}/$id', data: data);
 
       if (response.statusCode == 200) {
         return EventTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update event ticket');
+        throw ServerFailure(
+          message: 'Failed to update event ticket',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -168,10 +180,15 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
       final response = await dio.delete('${ApiConstants.eventTickets}/$id');
 
       if (response.statusCode != 204 && response.statusCode != 200) {
-        throw Exception('Failed to delete event ticket');
+        throw ServerFailure(
+          message: 'Failed to delete event ticket',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 
@@ -189,10 +206,15 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
       if (response.statusCode == 200) {
         return EventTicketModel.fromJson(response.data);
       } else {
-        throw Exception('Failed to update event ticket status');
+        throw ServerFailure(
+          message: 'Failed to update event ticket status',
+          code: response.statusCode?.toString(),
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Network error: ${e.message}');
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }
 }

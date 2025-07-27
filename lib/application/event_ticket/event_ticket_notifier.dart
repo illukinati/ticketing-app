@@ -5,7 +5,8 @@ import '../../domain/values_object/failure.dart';
 import '../../domain/repositories/event_ticket_repository.dart';
 import '../core/async_state.dart';
 
-class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntity>>> {
+class EventTicketNotifier
+    extends StateNotifier<AsyncState<List<EventTicketEntity>>> {
   final EventTicketRepository _repository;
 
   EventTicketNotifier(this._repository) : super(const AsyncState.initial());
@@ -21,17 +22,6 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
     );
   }
 
-  Future<void> loadEventTicketsByCategory(int categoryId) async {
-    state = const AsyncState.loading();
-
-    final result = await _repository.getEventTicketsByCategoryId(categoryId);
-
-    state = result.fold(
-      (failure) => AsyncState.error(failure),
-      (tickets) => AsyncState.data(tickets),
-    );
-  }
-
   Future<Either<Failure, EventTicketEntity>> createEventTicket({
     required int qty,
     required double price,
@@ -40,7 +30,6 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
     required int categoryId,
     required TicketStatus status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   }) async {
     // Validation
@@ -58,7 +47,9 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
 
     if (originalQty < 0) {
       return const Left(
-        ValidationFailure(message: 'Original quantity must be a positive number'),
+        ValidationFailure(
+          message: 'Original quantity must be a positive number',
+        ),
       );
     }
 
@@ -82,7 +73,6 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
       categoryId: categoryId,
       status: status,
       originalQty: originalQty,
-      movedFromPhaseId: movedFromPhaseId,
       movedQty: movedQty,
     );
 
@@ -101,7 +91,6 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
     required int categoryId,
     required TicketStatus status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   }) async {
     // Validation
@@ -119,7 +108,9 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
 
     if (originalQty < 0) {
       return const Left(
-        ValidationFailure(message: 'Original quantity must be a positive number'),
+        ValidationFailure(
+          message: 'Original quantity must be a positive number',
+        ),
       );
     }
 
@@ -144,7 +135,6 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
       categoryId: categoryId,
       status: status,
       originalQty: originalQty,
-      movedFromPhaseId: movedFromPhaseId,
       movedQty: movedQty,
     );
 
@@ -168,10 +158,7 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
     required TicketStatus status,
     required int showId,
   }) async {
-    final result = await _repository.updateTicketStatus(
-      id: id,
-      status: status,
-    );
+    final result = await _repository.updateTicketStatus(id: id, status: status);
 
     // Refresh the list if status update was successful
     result.fold((_) => null, (_) => loadEventTicketsByShow(showId));
@@ -185,10 +172,12 @@ class EventTicketNotifier extends StateNotifier<AsyncState<List<EventTicketEntit
 }
 
 // Separate notifier for category-specific tickets
-class EventTicketByCategoryNotifier extends StateNotifier<AsyncState<List<EventTicketEntity>>> {
+class EventTicketByCategoryNotifier
+    extends StateNotifier<AsyncState<List<EventTicketEntity>>> {
   final EventTicketRepository _repository;
 
-  EventTicketByCategoryNotifier(this._repository) : super(const AsyncState.initial());
+  EventTicketByCategoryNotifier(this._repository)
+    : super(const AsyncState.initial());
 
   Future<void> loadEventTicketsByCategory(int categoryId) async {
     state = const AsyncState.loading();
@@ -207,10 +196,12 @@ class EventTicketByCategoryNotifier extends StateNotifier<AsyncState<List<EventT
 }
 
 // Separate notifier for show-specific tickets
-class EventTicketByShowNotifier extends StateNotifier<AsyncState<List<EventTicketEntity>>> {
+class EventTicketByShowNotifier
+    extends StateNotifier<AsyncState<List<EventTicketEntity>>> {
   final EventTicketRepository _repository;
 
-  EventTicketByShowNotifier(this._repository) : super(const AsyncState.initial());
+  EventTicketByShowNotifier(this._repository)
+    : super(const AsyncState.initial());
 
   Future<void> loadEventTicketsByShow(int showId) async {
     state = const AsyncState.loading();

@@ -17,15 +17,15 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
   factory PurchasedTicketModel.fromJson(Map<String, dynamic> json) {
     return PurchasedTicketModel(
       id: json['id'] as int,
-      name: json['name'] as String,
-      phone: json['phone'] as String,
-      email: json['email'] as String,
-      quantity: json['quantity'] as int,
-      paymentStatus: PaymentStatus.fromString(json['payment_status'] as String),
+      name: json['name'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      quantity: json['quantity'] as int? ?? 0,
+      paymentStatus: PaymentStatus.fromString(json['payment_status'] as String? ?? 'pending'),
       paidAt: json['paid_at'] != null 
           ? DateTime.parse(json['paid_at'] as String)
           : null,
-      individualTickets: (json['individual_tickets'] as List<dynamic>)
+      individualTickets: (json['individual_tickets'] as List<dynamic>? ?? [])
           .map((ticket) => IndividualTicketModel.fromJson(ticket as Map<String, dynamic>))
           .toList(),
     );

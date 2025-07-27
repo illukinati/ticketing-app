@@ -18,7 +18,6 @@ abstract class EventTicketRepository {
     required int categoryId,
     required TicketStatus status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   });
 
@@ -32,7 +31,6 @@ abstract class EventTicketRepository {
     required int categoryId,
     required TicketStatus status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   });
 

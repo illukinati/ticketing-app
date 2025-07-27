@@ -23,12 +23,12 @@ class CategoryModel {
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
       id: json['id'] as int,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      color: json['color'] as String,
-      sortOrder: json['sort_order'] as int,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      color: json['color'] as String? ?? '',
+      sortOrder: json['sort_order'] as int? ?? 0,
+      createdAt: json['created_at'] as String? ?? '',
+      updatedAt: json['updated_at'] as String? ?? '',
     );
   }
 

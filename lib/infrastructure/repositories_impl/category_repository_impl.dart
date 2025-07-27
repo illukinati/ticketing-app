@@ -26,10 +26,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
         sortOrder: sortOrder,
       );
       return Right(categoryModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -39,10 +41,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
       final categoryModels = await remoteDataSource.getAllCategories();
       final entities = categoryModels.map((model) => model.toEntity()).toList();
       return Right(entities);
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -51,10 +55,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
     try {
       final categoryModel = await remoteDataSource.getCategoryById(id);
       return Right(categoryModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -75,10 +81,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
         sortOrder: sortOrder,
       );
       return Right(categoryModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -87,10 +95,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
     try {
       await remoteDataSource.deleteCategory(id);
       return const Right(unit);
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 }

@@ -44,7 +44,6 @@ class EventTicketEntity {
   final int categoryId;
   final TicketStatus status;
   final int originalQty;
-  final int? movedFromPhaseId;
   final int movedQty;
   final ShowEntity show;
   final PhaseEntity phase;
@@ -61,7 +60,6 @@ class EventTicketEntity {
     required this.categoryId,
     required this.status,
     required this.originalQty,
-    this.movedFromPhaseId,
     required this.movedQty,
     required this.show,
     required this.phase,
@@ -83,7 +81,6 @@ class EventTicketEntity {
           categoryId == other.categoryId &&
           status == other.status &&
           originalQty == other.originalQty &&
-          movedFromPhaseId == other.movedFromPhaseId &&
           movedQty == other.movedQty &&
           show == other.show &&
           phase == other.phase &&
@@ -101,7 +98,6 @@ class EventTicketEntity {
       categoryId.hashCode ^
       status.hashCode ^
       originalQty.hashCode ^
-      movedFromPhaseId.hashCode ^
       movedQty.hashCode ^
       show.hashCode ^
       phase.hashCode ^
@@ -109,7 +105,7 @@ class EventTicketEntity {
 
   @override
   String toString() {
-    return 'EventTicketEntity{id: $id, qty: $qty, price: $price, showId: $showId, phaseId: $phaseId, categoryId: $categoryId, status: $status, originalQty: $originalQty, movedFromPhaseId: $movedFromPhaseId, movedQty: $movedQty, createdAt: $createdAt, updatedAt: $updatedAt, show: $show, phase: $phase, category: $category}';
+    return 'EventTicketEntity{id: $id, qty: $qty, price: $price, showId: $showId, phaseId: $phaseId, categoryId: $categoryId, status: $status, originalQty: $originalQty, movedQty: $movedQty, createdAt: $createdAt, updatedAt: $updatedAt, show: $show, phase: $phase, category: $category}';
   }
 
   // Helper methods
@@ -123,5 +119,5 @@ class EventTicketEntity {
   double get availableValue => price * qty;
   double get soldValue => price * soldQty;
   
-  bool get hasMoved => movedFromPhaseId != null && movedQty > 0;
+  bool get hasMoved => movedQty > 0;
 }

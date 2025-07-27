@@ -1,10 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../domain/entities/event_ticket_entity.dart';
 import '../../domain/values_object/failure.dart';
 import '../../domain/repositories/event_ticket_repository.dart';
 import '../data_source/event_ticket_remote_data_source.dart';
-import '../core/dio_error_handler.dart';
 
 class EventTicketRepositoryImpl implements EventTicketRepository {
   final EventTicketRemoteDataSource remoteDataSource;
@@ -17,10 +15,10 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
       final ticketModels = await remoteDataSource.getEventTicketsByCategoryId(categoryId);
       final entities = ticketModels.map((model) => model.toEntity()).toList();
       return Right(entities);
-    } on DioException catch (e) {
-      return Left(DioErrorHandler.handleDioError(e));
+    } on Failure catch (e) {
+      return Left(e);
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -30,10 +28,10 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
       final ticketModels = await remoteDataSource.getEventTicketsByShowId(showId);
       final entities = ticketModels.map((model) => model.toEntity()).toList();
       return Right(entities);
-    } on DioException catch (e) {
-      return Left(DioErrorHandler.handleDioError(e));
+    } on Failure catch (e) {
+      return Left(e);
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -46,7 +44,6 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
     required int categoryId,
     required TicketStatus status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   }) async {
     try {
@@ -58,14 +55,13 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
         categoryId: categoryId,
         status: status.value,
         originalQty: originalQty,
-        movedFromPhaseId: movedFromPhaseId,
         movedQty: movedQty,
       );
       return Right(ticketModel.toEntity());
-    } on DioException catch (e) {
-      return Left(DioErrorHandler.handleDioError(e));
+    } on Failure catch (e) {
+      return Left(e);
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -79,7 +75,6 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
     required int categoryId,
     required TicketStatus status,
     required int originalQty,
-    int? movedFromPhaseId,
     int movedQty = 0,
   }) async {
     try {
@@ -92,14 +87,13 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
         categoryId: categoryId,
         status: status.value,
         originalQty: originalQty,
-        movedFromPhaseId: movedFromPhaseId,
         movedQty: movedQty,
       );
       return Right(ticketModel.toEntity());
-    } on DioException catch (e) {
-      return Left(DioErrorHandler.handleDioError(e));
+    } on Failure catch (e) {
+      return Left(e);
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -108,10 +102,10 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
     try {
       await remoteDataSource.deleteEventTicket(id);
       return const Right(unit);
-    } on DioException catch (e) {
-      return Left(DioErrorHandler.handleDioError(e));
+    } on Failure catch (e) {
+      return Left(e);
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -126,10 +120,10 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
         status: status.value,
       );
       return Right(ticketModel.toEntity());
-    } on DioException catch (e) {
-      return Left(DioErrorHandler.handleDioError(e));
+    } on Failure catch (e) {
+      return Left(e);
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 }

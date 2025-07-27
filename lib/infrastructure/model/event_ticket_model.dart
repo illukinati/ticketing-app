@@ -16,7 +16,6 @@ class EventTicketModel {
   final int categoryId;
   final String status;
   final int originalQty;
-  final int? movedFromPhaseId;
   final int movedQty;
   final ShowModel show;
   final PhaseModel phase;
@@ -33,7 +32,6 @@ class EventTicketModel {
     required this.categoryId,
     required this.status,
     required this.originalQty,
-    this.movedFromPhaseId,
     required this.movedQty,
     required this.show,
     required this.phase,
@@ -43,17 +41,16 @@ class EventTicketModel {
   factory EventTicketModel.fromJson(Map<String, dynamic> json) {
     return EventTicketModel(
       id: json['id'] as int,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
-      qty: json['qty'] as int,
-      price: (json['price'] as num).toDouble(),
+      createdAt: json['created_at'] as String? ?? '',
+      updatedAt: json['updated_at'] as String? ?? '',
+      qty: json['qty'] as int? ?? 0,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
       showId: json['show_id'] as int,
       phaseId: json['phase_id'] as int,
       categoryId: json['category_id'] as int,
-      status: json['status'] as String,
-      originalQty: json['original_qty'] as int,
-      movedFromPhaseId: json['moved_from_phase_id'] as int?,
-      movedQty: json['moved_qty'] as int,
+      status: json['status'] as String? ?? 'available',
+      originalQty: json['original_qty'] as int? ?? 0,
+      movedQty: json['moved_qty'] as int? ?? 0,
       show: ShowModel.fromJson(json['show'] as Map<String, dynamic>),
       phase: PhaseModel.fromJson(json['phase'] as Map<String, dynamic>),
       category: CategoryModel.fromJson(
@@ -74,7 +71,6 @@ class EventTicketModel {
       'category_id': categoryId,
       'status': status,
       'original_qty': originalQty,
-      'moved_from_phase_id': movedFromPhaseId,
       'moved_qty': movedQty,
       'show': show.toJson(),
       'phase': phase.toJson(),
@@ -94,7 +90,6 @@ class EventTicketModel {
       categoryId: categoryId,
       status: TicketStatus.fromString(status),
       originalQty: originalQty,
-      movedFromPhaseId: movedFromPhaseId,
       movedQty: movedQty,
       show: show.toEntity(),
       phase: phase.toEntity(),
@@ -114,7 +109,6 @@ class EventTicketModel {
       categoryId: entity.categoryId,
       status: entity.status.value,
       originalQty: entity.originalQty,
-      movedFromPhaseId: entity.movedFromPhaseId,
       movedQty: entity.movedQty,
       show: ShowModel.fromEntity(entity.show),
       phase: PhaseModel.fromEntity(entity.phase),

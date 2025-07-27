@@ -27,14 +27,14 @@ class PhaseModel {
   factory PhaseModel.fromJson(Map<String, dynamic> json) {
     return PhaseModel(
       id: json['id'] as int,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      startDate: json['start_date'] as String,
-      endDate: json['end_date'] as String,
-      active: json['active'] as bool,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
-      processed: json['processed'] as bool,
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      startDate: json['start_date'] as String? ?? '',
+      endDate: json['end_date'] as String? ?? '',
+      active: json['active'] as bool? ?? false,
+      createdAt: json['created_at'] as String? ?? '',
+      updatedAt: json['updated_at'] as String? ?? '',
+      processed: json['processed'] as bool? ?? false,
     );
   }
 

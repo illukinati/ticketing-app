@@ -28,10 +28,12 @@ class PhaseRepositoryImpl implements PhaseRepository {
         active: active,
       );
       return Right(phaseModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -41,10 +43,12 @@ class PhaseRepositoryImpl implements PhaseRepository {
       final phaseModels = await remoteDataSource.getAllPhases();
       final entities = phaseModels.map((model) => model.toEntity()).toList();
       return Right(entities);
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -53,10 +57,12 @@ class PhaseRepositoryImpl implements PhaseRepository {
     try {
       final phaseModel = await remoteDataSource.getPhaseById(id);
       return Right(phaseModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -79,10 +85,12 @@ class PhaseRepositoryImpl implements PhaseRepository {
         active: active,
       );
       return Right(phaseModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 
@@ -91,10 +99,12 @@ class PhaseRepositoryImpl implements PhaseRepository {
     try {
       await remoteDataSource.deletePhase(id);
       return const Right(unit);
+    } on Failure catch (e) {
+      return Left(e);
     } on DioException catch (e) {
       return Left(DioErrorHandler.handleDioError(e));
     } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
 }
