@@ -15,7 +15,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<String?> getToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(_tokenKey);
+      final token = prefs.getString(_tokenKey);
+      return token;
     } catch (e) {
       throw CacheFailure(message: 'Failed to get token from storage');
     }

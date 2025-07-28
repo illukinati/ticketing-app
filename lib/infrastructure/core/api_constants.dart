@@ -16,4 +16,7 @@ class ApiConstants {
   static const String categories = '/categories';
   static const String eventTickets = '/event_tickets';
   static const String purchases = '/purchases';
+  
+  // Auth endpoints
+  static const String authLogin = '/api/login';
 }

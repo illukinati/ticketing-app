@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../application/auth/auth_provider.dart';
 import '../widgets/login/login_header.dart';
 import '../widgets/login/login_form.dart';
 import '../widgets/login/login_button.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginScreenState extends ConsumerState<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
@@ -64,8 +66,10 @@ class _LoginScreenState extends State<LoginScreen>
       _isLoading = true;
     });
 
-    // Simulate login process
-    await Future.delayed(const Duration(seconds: 2));
+    final result = await ref.read(authNotifierProvider.notifier).login(
+      username: _usernameController.text,
+      password: _passwordController.text,
+    );
 
     if (!mounted) return;
 
@@ -73,15 +77,25 @@ class _LoginScreenState extends State<LoginScreen>
       _isLoading = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Login successful! Welcome ${_usernameController.text}'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(failure.message),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      },
+      (user) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login berhasil! Selamat datang ${user.username}'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+        context.go('/home');
+      },
     );
-
-    // Navigate to home screen
-    context.go('/home');
   }
 
   @override
@@ -90,45 +104,32 @@ class _LoginScreenState extends State<LoginScreen>
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              colorScheme.primary.withValues(alpha: 0.1),
-              colorScheme.surface,
-              colorScheme.secondary.withValues(alpha: 0.05),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const LoginHeader(),
-                      const SizedBox(height: 48),
-                      LoginForm(
-                        formKey: _formKey,
-                        usernameController: _usernameController,
-                        passwordController: _passwordController,
-                        onSubmit: _handleLogin,
-                        isLoading: _isLoading,
-                      ),
-                      const SizedBox(height: 32),
-                      LoginButton(
-                        onPressed: _handleLogin,
-                        isLoading: _isLoading,
-                      ),
-                    ],
-                  ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const LoginHeader(),
+                    const SizedBox(height: 48),
+                    LoginForm(
+                      formKey: _formKey,
+                      usernameController: _usernameController,
+                      passwordController: _passwordController,
+                      onSubmit: _handleLogin,
+                      isLoading: _isLoading,
+                    ),
+                    const SizedBox(height: 32),
+                    LoginButton(
+                      onPressed: _handleLogin,
+                      isLoading: _isLoading,
+                    ),
+                  ],
                 ),
               ),
             ),

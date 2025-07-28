@@ -8,26 +8,22 @@ import '../core/async_state.dart';
 class AuthNotifier extends StateNotifier<AsyncState<UserEntity?>> {
   final AuthRepository _repository;
 
-  AuthNotifier(this._repository) : super(const AsyncState.initial()) {
-    checkAuthStatus();
-  }
+  AuthNotifier(this._repository) : super(const AsyncState.initial());
 
   Future<void> checkAuthStatus() async {
     state = const AsyncState.loading();
-    
+
     final result = await _repository.isLoggedIn();
     result.fold(
-      (failure) => state = const AsyncState.data(null),
-      (isLoggedIn) async {
-        if (isLoggedIn) {
-          final userResult = await _repository.getCurrentUser();
-          userResult.fold(
-            (failure) => state = const AsyncState.data(null),
-            (user) => state = AsyncState.data(user),
-          );
-        } else {
-          state = const AsyncState.data(null);
-        }
+      (failure) {
+        state = const AsyncState.data(null);
+      },
+      (isLoggedIn) {
+        state = AsyncState.data(
+          isLoggedIn
+              ? const UserEntity(id: 0, username: 'User', email: '')
+              : null,
+        );
       },
     );
   }
@@ -39,13 +35,17 @@ class AuthNotifier extends StateNotifier<AsyncState<UserEntity?>> {
     state = const AsyncState.loading();
 
     if (username.trim().isEmpty) {
-      final failure = const ValidationFailure(message: 'Username tidak boleh kosong');
+      final failure = const ValidationFailure(
+        message: 'Username tidak boleh kosong',
+      );
       state = const AsyncState.data(null);
       return Left(failure);
     }
 
     if (password.trim().isEmpty) {
-      final failure = const ValidationFailure(message: 'Password tidak boleh kosong');
+      final failure = const ValidationFailure(
+        message: 'Password tidak boleh kosong',
+      );
       state = const AsyncState.data(null);
       return Left(failure);
     }
@@ -69,7 +69,7 @@ class AuthNotifier extends StateNotifier<AsyncState<UserEntity?>> {
 
   Future<Either<Failure, Unit>> logout() async {
     final result = await _repository.logout();
-    
+
     result.fold(
       (failure) => null, // Keep current state on failure
       (_) => state = const AsyncState.data(null),
@@ -78,27 +78,9 @@ class AuthNotifier extends StateNotifier<AsyncState<UserEntity?>> {
     return result;
   }
 
-  Future<void> refreshUser() async {
-    state = const AsyncState.loading();
-    
-    final result = await _repository.getCurrentUser();
-    result.fold(
-      (failure) => state = AsyncState.error(failure),
-      (user) => state = AsyncState.data(user),
-    );
-  }
+  bool get isLoggedIn =>
+      state.maybeWhen(data: (user) => user != null, orElse: () => false);
 
-  void refresh() {
-    checkAuthStatus();
-  }
-
-  bool get isLoggedIn => state.maybeWhen(
-    data: (user) => user != null,
-    orElse: () => false,
-  );
-
-  UserEntity? get currentUser => state.maybeWhen(
-    data: (user) => user,
-    orElse: () => null,
-  );
+  UserEntity? get currentUser =>
+      state.maybeWhen(data: (user) => user, orElse: () => null);
 }

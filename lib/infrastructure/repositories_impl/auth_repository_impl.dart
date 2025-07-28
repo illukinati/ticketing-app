@@ -40,33 +40,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> logout() async {
     try {
-      // Call remote logout first
-      await remoteDataSource.logout();
-      
-      // Remove token from local storage
+      // Just remove token from local storage (no remote logout)
       await localDataSource.removeToken();
-      
       return const Right(unit);
-    } on Failure catch (e) {
-      // Even if remote logout fails, remove local token
-      try {
-        await localDataSource.removeToken();
-      } catch (_) {}
-      return Left(e);
-    } catch (e) {
-      // Even if remote logout fails, remove local token
-      try {
-        await localDataSource.removeToken();
-      } catch (_) {}
-      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
-    }
-  }
-
-  @override
-  Future<Either<Failure, UserEntity>> getCurrentUser() async {
-    try {
-      final userModel = await remoteDataSource.getCurrentUser();
-      return Right(userModel.toEntity());
     } on Failure catch (e) {
       return Left(e);
     } catch (e) {
