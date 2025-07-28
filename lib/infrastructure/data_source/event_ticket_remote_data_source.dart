@@ -28,7 +28,7 @@ abstract class EventTicketRemoteDataSource {
     required int originalQty,
     int movedQty = 0,
   });
-  Future<void> deleteEventTicket(int id);
+  Future<void> deleteEventTicket(int showId, int ticketId);
   Future<EventTicketModel> updateEventTicketStatus({
     required int id,
     required String status,
@@ -175,9 +175,9 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
   }
 
   @override
-  Future<void> deleteEventTicket(int id) async {
+  Future<void> deleteEventTicket(int showId, int ticketId) async {
     try {
-      final response = await dio.delete('${ApiConstants.eventTickets}/$id');
+      final response = await dio.delete('${ApiConstants.shows}/$showId${ApiConstants.eventTickets}/$ticketId');
 
       if (response.statusCode != 204 && response.statusCode != 200) {
         throw ServerFailure(

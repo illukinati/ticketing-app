@@ -38,7 +38,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (shouldLogout == true && mounted) {
       await ref.read(authNotifierProvider.notifier).logout();
-      context.go('/login');
+      if (mounted) {
+        context.go('/login');
+      }
     }
   }
 

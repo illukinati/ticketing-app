@@ -98,9 +98,9 @@ class EventTicketRepositoryImpl implements EventTicketRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> deleteEventTicket(int id) async {
+  Future<Either<Failure, Unit>> deleteEventTicket(int showId, int ticketId) async {
     try {
-      await remoteDataSource.deleteEventTicket(id);
+      await remoteDataSource.deleteEventTicket(showId, ticketId);
       return const Right(unit);
     } on Failure catch (e) {
       return Left(e);

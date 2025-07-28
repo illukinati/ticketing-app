@@ -144,8 +144,8 @@ class EventTicketNotifier
     return result;
   }
 
-  Future<Either<Failure, Unit>> deleteEventTicket(int id, int showId) async {
-    final result = await _repository.deleteEventTicket(id);
+  Future<Either<Failure, Unit>> deleteEventTicket(int showId, int ticketId) async {
+    final result = await _repository.deleteEventTicket(showId, ticketId);
 
     // Refresh the list if deletion was successful
     result.fold((_) => null, (_) => loadEventTicketsByShow(showId));

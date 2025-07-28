@@ -112,7 +112,7 @@ class DeleteTicketDialog extends ConsumerWidget {
           onPressed: () async {
             final result = await ref
                 .read(eventTicketListNotifierProvider.notifier)
-                .deleteEventTicket(ticket.id, ticket.showId);
+                .deleteEventTicket(ticket.showId, ticket.id);
 
             if (context.mounted) {
               context.pop();

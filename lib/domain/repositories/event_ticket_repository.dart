@@ -35,7 +35,7 @@ abstract class EventTicketRepository {
   });
 
   // Delete an event ticket
-  Future<Either<Failure, Unit>> deleteEventTicket(int id);
+  Future<Either<Failure, Unit>> deleteEventTicket(int showId, int ticketId);
 
   // Update ticket status
   Future<Either<Failure, EventTicketEntity>> updateTicketStatus({

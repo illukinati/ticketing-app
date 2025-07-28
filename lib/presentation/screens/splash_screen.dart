@@ -28,6 +28,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       // First ensure auth status is checked
       await ref.read(authNotifierProvider.notifier).checkAuthStatus();
       
+      if (!mounted) return;
+      
       // Then check if logged in
       final isLoggedIn = ref.read(isLoggedInProvider);
       
@@ -38,7 +40,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       }
     } catch (e) {
       // On error, go to login
-      context.go('/login');
+      if (mounted) {
+        context.go('/login');
+      }
     }
   }
 
