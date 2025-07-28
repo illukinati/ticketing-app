@@ -28,18 +28,6 @@ class CategoryListItem extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: _parseColor(category.color),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: colorScheme.outline.withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-        ),
         title: Text(
           category.name,
           style: textTheme.titleMedium?.copyWith(
@@ -112,22 +100,5 @@ class CategoryListItem extends StatelessWidget {
         onTap: onTap,
       ),
     );
-  }
-
-  Color _parseColor(String colorHex) {
-    try {
-      // Remove # if present
-      String hex = colorHex.replaceAll('#', '');
-      
-      // Add FF for alpha if needed
-      if (hex.length == 6) {
-        hex = 'FF$hex';
-      }
-      
-      return Color(int.parse(hex, radix: 16));
-    } catch (e) {
-      // Return a default color if parsing fails
-      return Colors.grey;
-    }
   }
 }

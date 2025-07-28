@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import '../../domain/values_object/failure.dart';
 import '../core/api_constants.dart';
 import '../core/dio_error_handler.dart';
@@ -31,7 +32,7 @@ class ShowRemoteDataSourceImpl implements ShowRemoteDataSource {
   Future<List<ShowModel>> getAllShows() async {
     try {
       final response = await dio.get(ApiConstants.shows);
-
+      debugPrint("response: ${response.data}");
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = response.data;
         return jsonList.map((json) => ShowModel.fromJson(json)).toList();

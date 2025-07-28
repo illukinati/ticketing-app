@@ -91,3 +91,8 @@ CLAUDE.md
 # Environment variables
 .env
 .env.*
+
+# Database files
+memory.db
+memory.db-shm
+memory.db-wal
