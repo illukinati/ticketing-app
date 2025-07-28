@@ -41,7 +41,12 @@ migrate_working_dir/
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 
-# iOS/XCode related
+# iOS/XCode related - Ignore entire ios folder
+ios/
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+
+# Old iOS-specific rules (kept for reference, but overridden by ios/ above)
 **/ios/**/*.mode1v3
 **/ios/**/*.mode2v3
 **/ios/**/*.moved-aside
@@ -66,12 +71,6 @@ migrate_working_dir/
 **/ios/Flutter/flutter_assets/
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
-
-# Exceptions to above rules.
-!**/ios/**/default.mode1v3
-!**/ios/**/default.mode2v3
-!**/ios/**/default.pbxuser
-!**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
 # Symbolication related

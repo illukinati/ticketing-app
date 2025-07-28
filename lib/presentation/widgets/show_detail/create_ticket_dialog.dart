@@ -53,7 +53,7 @@ class _CreateTicketDialogState extends ConsumerState<CreateTicketDialog> {
     final categoriesState = ref.watch(categoryListNotifierProvider);
 
     final phases = phasesState.maybeWhen(
-      data: (phases) => phases.where((p) => p.active).toList(),
+      data: (phases) => phases,
       orElse: () => <PhaseEntity>[],
     );
 
@@ -80,7 +80,31 @@ class _CreateTicketDialogState extends ConsumerState<CreateTicketDialog> {
                 items: phases.map((phase) {
                   return DropdownMenuItem(
                     value: phase,
-                    child: Text(phase.name),
+                    child: Row(
+                      children: [
+                        Text(phase.name),
+                        if (!phase.active) ...[ 
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'Inactive',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) => setState(() => _selectedPhase = value),
