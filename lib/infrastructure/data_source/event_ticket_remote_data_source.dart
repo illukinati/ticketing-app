@@ -104,18 +104,16 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
   }) async {
     try {
       final data = {
-        'qty': qty,
-        'price': price,
-        'show_id': showId,
-        'phase_id': phaseId,
-        'category_id': categoryId,
-        'status': status,
-        'original_qty': originalQty,
-        'moved_qty': movedQty,
+        'event_ticket': {
+          'qty': qty,
+          'price': price,
+          'status': status,
+          'phase_id': phaseId,
+          'category_id': categoryId,
+        }
       };
 
-
-      final response = await dio.post(ApiConstants.eventTickets, data: data);
+      final response = await dio.post('${ApiConstants.shows}/$showId${ApiConstants.eventTickets}', data: data);
 
       if (response.statusCode == 201) {
         return EventTicketModel.fromJson(response.data);
