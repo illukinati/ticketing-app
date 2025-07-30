@@ -19,4 +19,7 @@ class ApiConstants {
   
   // Auth endpoints
   static const String authLogin = '/api/login';
+  
+  // Ticket validation endpoints
+  static const String ticketsValidate = '/api/tickets/validate';
 }

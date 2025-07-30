@@ -66,10 +66,11 @@ class ProfilePage extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       'Halo, ${currentUser?.username ?? 'yb-admin'}',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -81,9 +82,9 @@ class ProfilePage extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Profile Menu Items
               Expanded(
                 child: Column(
@@ -117,9 +118,9 @@ class ProfilePage extends ConsumerWidget {
                         // TODO: Navigate to help
                       },
                     ),
-                    
+
                     const Spacer(),
-                    
+
                     // Logout Button
                     SizedBox(
                       width: double.infinity,
@@ -155,7 +156,7 @@ class ProfilePage extends ConsumerWidget {
     required VoidCallback onTap,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -167,20 +168,13 @@ class ProfilePage extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 24,
-              color: colorScheme.primary,
-            ),
+            Icon(icon, size: 24, color: colorScheme.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  Text(title, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
@@ -191,10 +185,7 @@ class ProfilePage extends ConsumerWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
           ],
         ),
       ),

@@ -42,4 +42,18 @@ class PurchasedTicketRepositoryImpl implements PurchasedTicketRepository {
       return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
+
+  @override
+  Future<Either<Failure, PurchasedTicketEntity>> getPurchasedTicketById(int id) async {
+    try {
+      final model = await remoteDataSource.getPurchasedTicketById(id);
+      return Right(model.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
+    } on DioException catch (e) {
+      return Left(DioErrorHandler.handleDioError(e));
+    } catch (e) {
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
+    }
+  }
 }

@@ -1,6 +1,7 @@
 class IndividualTicketEntity {
   final int ticketId;
   final int ticketNumber;
+  final int? purchaseId;
   final bool used;
   final DateTime? usedAt;
   final DateTime createdAt;
@@ -9,6 +10,7 @@ class IndividualTicketEntity {
   const IndividualTicketEntity({
     required this.ticketId,
     required this.ticketNumber,
+    this.purchaseId,
     required this.used,
     this.usedAt,
     required this.createdAt,
@@ -19,6 +21,7 @@ class IndividualTicketEntity {
     return IndividualTicketEntity(
       ticketId: json['ticket_id'] as int,
       ticketNumber: json['ticket_number'] as int,
+      purchaseId: json['purchase_id'] as int?,
       used: json['used'] as bool,
       usedAt: json['used_at'] != null 
           ? DateTime.parse(json['used_at'] as String)
@@ -32,6 +35,7 @@ class IndividualTicketEntity {
     return {
       'ticket_id': ticketId,
       'ticket_number': ticketNumber,
+      'purchase_id': purchaseId,
       'used': used,
       'used_at': usedAt?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
@@ -45,6 +49,7 @@ class IndividualTicketEntity {
   IndividualTicketEntity copyWith({
     int? ticketId,
     int? ticketNumber,
+    int? purchaseId,
     bool? used,
     DateTime? usedAt,
     DateTime? createdAt,
@@ -53,6 +58,7 @@ class IndividualTicketEntity {
     return IndividualTicketEntity(
       ticketId: ticketId ?? this.ticketId,
       ticketNumber: ticketNumber ?? this.ticketNumber,
+      purchaseId: purchaseId ?? this.purchaseId,
       used: used ?? this.used,
       usedAt: usedAt ?? this.usedAt,
       createdAt: createdAt ?? this.createdAt,
