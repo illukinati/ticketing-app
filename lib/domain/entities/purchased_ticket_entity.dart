@@ -4,7 +4,8 @@ enum PaymentStatus {
   pending('pending'),
   paid('paid'),
   failed('failed'),
-  cancelled('cancelled');
+  cancelled('cancelled'),
+  expired('expired');
 
   const PaymentStatus(this.value);
   final String value;
@@ -72,6 +73,7 @@ class PurchasedTicketEntity {
   bool get isPending => paymentStatus == PaymentStatus.pending;
   bool get isFailed => paymentStatus == PaymentStatus.failed;
   bool get isCancelled => paymentStatus == PaymentStatus.cancelled;
+  bool get isExpired => paymentStatus == PaymentStatus.expired;
 
   int get usedTicketsCount {
     return individualTickets.where((ticket) => ticket.used).length;

@@ -1,27 +1,81 @@
-import '../../domain/entities/individual_ticket_entity.dart';
 import '../../domain/entities/ticket_validation_entity.dart';
-import 'individual_ticket_model.dart';
+
+class ValidatedTicketModel extends ValidatedTicketEntity {
+  const ValidatedTicketModel({
+    required super.ticketId,
+    required super.ticketNumber,
+    required super.purchaseId,
+    required super.customerName,
+    required super.customerEmail,
+    required super.customerPhone,
+    required super.event,
+    required super.category,
+    required super.phase,
+    required super.phaseStartDate,
+    required super.used,
+    super.usedAt,
+  });
+
+  factory ValidatedTicketModel.fromJson(Map<String, dynamic> json) {
+    return ValidatedTicketModel(
+      ticketId: json['ticket_id'] as int,
+      ticketNumber: json['ticket_number'] as int,
+      purchaseId: json['purchase_id'] as int,
+      customerName: json['customer_name'] as String,
+      customerEmail: json['customer_email'] as String,
+      customerPhone: json['customer_phone'] as String,
+      event: json['event'] as String,
+      category: json['category'] as String,
+      phase: json['phase'] as String,
+      phaseStartDate: DateTime.parse(json['phase_start_date'] as String),
+      used: json['used'] as bool,
+      usedAt: json['used_at'] != null 
+          ? DateTime.parse(json['used_at'] as String)
+          : null,
+    );
+  }
+
+  factory ValidatedTicketModel.fromEntity(ValidatedTicketEntity entity) {
+    return ValidatedTicketModel(
+      ticketId: entity.ticketId,
+      ticketNumber: entity.ticketNumber,
+      purchaseId: entity.purchaseId,
+      customerName: entity.customerName,
+      customerEmail: entity.customerEmail,
+      customerPhone: entity.customerPhone,
+      event: entity.event,
+      category: entity.category,
+      phase: entity.phase,
+      phaseStartDate: entity.phaseStartDate,
+      used: entity.used,
+      usedAt: entity.usedAt,
+    );
+  }
+}
 
 class TicketValidationModel extends TicketValidationEntity {
   const TicketValidationModel({
-    required super.valid,
+    required super.status,
+    required super.message,
     super.ticket,
   });
 
   factory TicketValidationModel.fromJson(Map<String, dynamic> json) {
     return TicketValidationModel(
-      valid: json['valid'] as bool? ?? false,
+      status: ValidationStatus.fromString(json['status'] as String),
+      message: json['message'] as String,
       ticket: json['ticket'] != null 
-          ? IndividualTicketModel.fromJson(json['ticket'] as Map<String, dynamic>)
+          ? ValidatedTicketModel.fromJson(json['ticket'] as Map<String, dynamic>)
           : null,
     );
   }
 
   factory TicketValidationModel.fromEntity(TicketValidationEntity entity) {
     return TicketValidationModel(
-      valid: entity.valid,
+      status: entity.status,
+      message: entity.message,
       ticket: entity.ticket != null 
-          ? IndividualTicketModel.fromEntity(entity.ticket!)
+          ? ValidatedTicketModel.fromEntity(entity.ticket!)
           : null,
     );
   }
@@ -29,31 +83,31 @@ class TicketValidationModel extends TicketValidationEntity {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'valid': valid,
-      'ticket': ticket != null && ticket is IndividualTicketModel
-          ? (ticket as IndividualTicketModel).toJson()
-          : ticket?.toJson(),
+      'status': status.value,
+      'message': message,
+      'ticket': ticket,
     };
   }
 
   TicketValidationEntity toEntity() {
     return TicketValidationEntity(
-      valid: valid,
-      ticket: ticket != null && ticket is IndividualTicketModel
-          ? (ticket as IndividualTicketModel).toEntity()
-          : ticket,
+      status: status,
+      message: message,
+      ticket: ticket,
     );
   }
 
   @override
   TicketValidationModel copyWith({
-    bool? valid,
-    IndividualTicketEntity? ticket,
+    ValidationStatus? status,
+    String? message,
+    ValidatedTicketEntity? ticket,
   }) {
     return TicketValidationModel(
-      valid: valid ?? this.valid,
+      status: status ?? this.status,
+      message: message ?? this.message,
       ticket: ticket != null 
-          ? (ticket is IndividualTicketModel ? ticket : IndividualTicketModel.fromEntity(ticket))
+          ? (ticket is ValidatedTicketModel ? ticket : ValidatedTicketModel.fromEntity(ticket))
           : this.ticket,
     );
   }

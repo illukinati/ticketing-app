@@ -20,21 +20,37 @@ class PurchasedTicketCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Name and Status
+            // Name, ID and Status
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    ticket.name,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    children: [
+                      Text(
+                        ticket.name,
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '#${ticket.id}',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(ticket.paymentStatus).withValues(alpha: 0.1),
+                    color: _getStatusColor(
+                      ticket.paymentStatus,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -59,9 +75,33 @@ class PurchasedTicketCard extends StatelessWidget {
             const SizedBox(height: 8),
 
             // Quantity
-            Text(
-              '${ticket.quantity} tickets • ${ticket.usedTicketsCount} used',
-              style: textTheme.bodyMedium,
+            Row(
+              children: [
+                Text(
+                  '${ticket.quantity} tickets • ${ticket.usedTicketsCount} used',
+                  style: textTheme.bodyMedium,
+                ),
+                if (ticket.quantity == ticket.usedTicketsCount && ticket.quantity > 0) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'USED',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
@@ -78,6 +118,8 @@ class PurchasedTicketCard extends StatelessWidget {
       case PaymentStatus.failed:
         return Colors.red;
       case PaymentStatus.cancelled:
+        return Colors.grey;
+      case PaymentStatus.expired:
         return Colors.grey;
     }
   }

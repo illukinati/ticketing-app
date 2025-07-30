@@ -5,10 +5,12 @@ import '../../domain/repositories/ticket_validation_repository.dart';
 import '../../domain/values_object/failure.dart';
 import '../core/async_state.dart';
 
-class TicketValidationNotifier extends StateNotifier<AsyncState<TicketValidationEntity?>> {
+class TicketValidationNotifier
+    extends StateNotifier<AsyncState<TicketValidationEntity?>> {
   final TicketValidationRepository _repository;
 
-  TicketValidationNotifier(this._repository) : super(const AsyncState.initial());
+  TicketValidationNotifier(this._repository)
+    : super(const AsyncState.initial());
 
   Future<Either<Failure, TicketValidationEntity>> validateTicket({
     required String token,

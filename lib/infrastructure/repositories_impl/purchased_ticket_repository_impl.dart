@@ -13,20 +13,6 @@ class PurchasedTicketRepositoryImpl implements PurchasedTicketRepository {
     required this.remoteDataSource,
   });
 
-  @override
-  Future<Either<Failure, List<PurchasedTicketEntity>>> getAllPurchasedTickets() async {
-    try {
-      final models = await remoteDataSource.getAllPurchasedTickets();
-      final entities = models.map((model) => model.toEntity()).toList();
-      return Right(entities);
-    } on Failure catch (e) {
-      return Left(e);
-    } on DioException catch (e) {
-      return Left(DioErrorHandler.handleDioError(e));
-    } catch (e) {
-      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
-    }
-  }
 
   @override
   Future<Either<Failure, List<PurchasedTicketEntity>>> getPurchasedTicketsByShowId(int showId) async {

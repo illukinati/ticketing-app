@@ -17,11 +17,6 @@ final purchasedTicketRepositoryProvider = Provider<PurchasedTicketRepository>((r
 });
 
 // State Notifier Providers
-final purchasedTicketListNotifierProvider = StateNotifierProvider<PurchasedTicketNotifier, AsyncState<List<PurchasedTicketEntity>>>((ref) {
-  final repository = ref.watch(purchasedTicketRepositoryProvider);
-  return PurchasedTicketNotifier(repository);
-});
-
 final purchasedTicketByShowNotifierProvider = StateNotifierProvider<PurchasedTicketByShowNotifier, AsyncState<List<PurchasedTicketEntity>>>((ref) {
   final repository = ref.watch(purchasedTicketRepositoryProvider);
   return PurchasedTicketByShowNotifier(repository);

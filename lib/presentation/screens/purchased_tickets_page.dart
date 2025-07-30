@@ -146,11 +146,18 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
       initial: () => const SizedBox.shrink(),
       loading: () => const SizedBox.shrink(),
       data: (tickets) {
-        final totalPurchases = tickets.length;
-        final totalTickets = tickets.fold<int>(0, (sum, ticket) => sum + ticket.quantity);
-        final paidTickets = tickets.where((ticket) => ticket.isPaid).length;
-        final pendingTickets = tickets.where((ticket) => ticket.isPending).length;
-        final usedTickets = tickets.fold<int>(0, (sum, ticket) => sum + ticket.usedTicketsCount);
+        // Filter out cancelled, expired, and failed tickets
+        final validTickets = tickets.where((ticket) => 
+          ticket.paymentStatus != PaymentStatus.cancelled &&
+          ticket.paymentStatus != PaymentStatus.expired &&
+          ticket.paymentStatus != PaymentStatus.failed
+        ).toList();
+        
+        final totalPurchases = validTickets.length;
+        final totalTickets = validTickets.fold<int>(0, (sum, ticket) => sum + ticket.quantity);
+        final paidTickets = validTickets.where((ticket) => ticket.isPaid).length;
+        final pendingTickets = validTickets.where((ticket) => ticket.isPending).length;
+        final usedTickets = validTickets.fold<int>(0, (sum, ticket) => sum + ticket.usedTicketsCount);
 
         return Row(
           children: [
@@ -163,7 +170,7 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
             ),
             Expanded(
               child: _StatItem(
-                label: 'Total Tickets',
+                label: 'Tickets',
                 value: totalTickets.toString(),
                 icon: Icons.confirmation_number,
               ),
@@ -206,9 +213,17 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
       initial: () => const Center(child: Text('Loading purchased tickets...')),
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (tickets) {
+        // First filter out expired, failed, and cancelled tickets
+        final validTickets = tickets.where((ticket) => 
+          ticket.paymentStatus != PaymentStatus.cancelled &&
+          ticket.paymentStatus != PaymentStatus.expired &&
+          ticket.paymentStatus != PaymentStatus.failed
+        ).toList();
+        
+        // Then apply user's filter selection
         final filteredTickets = _selectedPaymentStatus == null
-            ? tickets
-            : tickets.where((ticket) => ticket.paymentStatus == _selectedPaymentStatus).toList();
+            ? validTickets
+            : validTickets.where((ticket) => ticket.paymentStatus == _selectedPaymentStatus).toList();
 
         if (filteredTickets.isEmpty) {
           return Center(

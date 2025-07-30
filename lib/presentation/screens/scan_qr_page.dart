@@ -79,11 +79,10 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
   }
 
   Future<void> _validateTicket(String token) async {
-    // DEBUG: Print QR scan result
     debugPrint('🔍 QR Scan Result: $token');
     debugPrint('🔍 QR Length: ${token.length}');
     debugPrint('🔍 QR Type: ${token.runtimeType}');
-    
+
     // Stop scanner temporarily to prevent multiple scans
     controller.stop();
     setState(() {
@@ -97,32 +96,27 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
-    // Call validation API
     final result = await ref
         .read(ticketValidationProvider.notifier)
         .validateTicket(token: token);
 
     result.fold(
       (failure) {
-        // Close loading dialog
         if (mounted) {
           Navigator.of(context).pop();
         }
         _showErrorSnackbar(failure.message);
       },
       (validation) async {
-        // If validation is successful and ticket has purchase_id, fetch owner info
         PurchasedTicketEntity? ownerInfo;
         if (validation.isValid &&
-            validation.ticket != null &&
-            validation.ticket!.purchaseId != null) {
+            validation.ticket != null) {
           final purchaseResult = await ref
               .read(purchasedTicketRepositoryProvider)
-              .getPurchasedTicketById(validation.ticket!.purchaseId!);
+              .getPurchasedTicketById(validation.ticket!.purchaseId);
 
           purchaseResult.fold(
             (failure) {
-              // If owner fetch fails, continue without owner info
               ownerInfo = null;
             },
             (purchase) {
@@ -153,16 +147,30 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
         title: Row(
           children: [
             Icon(
-              validation.isValid ? Icons.check_circle : Icons.error,
-              color: validation.isValid ? Colors.green : Colors.red,
+              validation.isValid 
+                  ? Icons.check_circle 
+                  : validation.isAlreadyUsed 
+                      ? Icons.warning 
+                      : Icons.error,
+              color: validation.isValid 
+                  ? Colors.green 
+                  : validation.isAlreadyUsed 
+                      ? Colors.orange 
+                      : Colors.red,
               size: 28,
             ),
             const SizedBox(width: 12),
-            Text(
-              validation.isValid ? 'Tiket Valid' : 'Tiket Tidak Valid',
-              style: textTheme.titleLarge?.copyWith(
-                color: validation.isValid ? Colors.green : Colors.red,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                validation.message,
+                style: textTheme.titleLarge?.copyWith(
+                  color: validation.isValid 
+                      ? Colors.green 
+                      : validation.isAlreadyUsed 
+                          ? Colors.orange 
+                          : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -207,8 +215,8 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
                       _buildInfoRow('Email', ownerInfo.email),
                       const SizedBox(height: 6),
                       _buildInfoRow(
-                        'Total Tiket', 
-                        '${ownerInfo.quantity} tiket'
+                        'Total Tiket',
+                        '${ownerInfo.quantity} tiket',
                       ),
                       const SizedBox(height: 6),
                       Row(
@@ -229,8 +237,8 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
                               '${ownerInfo.usedTicketsCount} dari ${ownerInfo.quantity} tiket',
                               style: textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
-                                color: ownerInfo.allTicketsUsed 
-                                    ? Colors.red 
+                                color: ownerInfo.allTicketsUsed
+                                    ? Colors.red
                                     : Colors.orange,
                               ),
                             ),
@@ -275,8 +283,23 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
                     ),
                     const SizedBox(height: 12),
                     _buildInfoRow(
+                      'ID Tiket',
+                      '#${validation.ticket!.ticketId}',
+                    ),
+                    const SizedBox(height: 6),
+                    _buildInfoRow(
                       'Nomor Tiket',
                       '${validation.ticket!.ticketNumber}',
+                    ),
+                    const SizedBox(height: 6),
+                    _buildInfoRow(
+                      'Event',
+                      validation.ticket!.event,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildInfoRow(
+                      'Kategori',
+                      '${validation.ticket!.category} - ${validation.ticket!.phase}',
                     ),
                     const SizedBox(height: 6),
                     Row(
@@ -300,7 +323,7 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
                             ),
                             decoration: BoxDecoration(
                               color: validation.ticket!.used
-                                  ? Colors.red.withValues(alpha: 0.1) 
+                                  ? Colors.red.withValues(alpha: 0.1)
                                   : Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
@@ -339,11 +362,6 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    _buildInfoRow(
-                      'Dibuat',
-                      _formatDateTime(validation.ticket!.createdAt),
-                    ),
                     if (validation.ticket!.usedAt != null) ...[
                       const SizedBox(height: 6),
                       _buildInfoRow(
@@ -368,7 +386,7 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Tiket tidak ditemukan atau token tidak valid',
+                        validation.message,
                         style: textTheme.bodyMedium?.copyWith(
                           color: Colors.red,
                         ),
