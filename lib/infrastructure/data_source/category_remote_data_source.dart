@@ -10,14 +10,12 @@ abstract class CategoryRemoteDataSource {
   Future<CategoryModel> createCategory({
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   });
   Future<CategoryModel> updateCategory({
     required int id,
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   });
   Future<void> deleteCategory(int id);
@@ -82,14 +80,12 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
   Future<CategoryModel> createCategory({
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   }) async {
     try {
       final data = {
         'name': name,
         'description': description,
-        'color': color,
         'sort_order': sortOrder,
       };
 
@@ -115,14 +111,12 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
     required int id,
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   }) async {
     try {
       final data = {
         'name': name,
         'description': description,
-        'color': color,
         'sort_order': sortOrder,
       };
 

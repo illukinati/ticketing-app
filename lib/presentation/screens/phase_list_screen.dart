@@ -44,6 +44,9 @@ class _PhaseListPageState extends ConsumerState<PhaseListScreen> {
           ),
         ),
         backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        actionsIconTheme: IconThemeData(color: colorScheme.primary),
         elevation: 0,
         actions: [
           IconButton(

@@ -15,14 +15,12 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Future<Either<Failure, CategoryEntity>> createCategory({
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   }) async {
     try {
       final categoryModel = await remoteDataSource.createCategory(
         name: name,
         description: description,
-        color: color,
         sortOrder: sortOrder,
       );
       return Right(categoryModel.toEntity());
@@ -69,7 +67,6 @@ class CategoryRepositoryImpl implements CategoryRepository {
     required int id,
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   }) async {
     try {
@@ -77,7 +74,6 @@ class CategoryRepositoryImpl implements CategoryRepository {
         id: id,
         name: name,
         description: description,
-        color: color,
         sortOrder: sortOrder,
       );
       return Right(categoryModel.toEntity());

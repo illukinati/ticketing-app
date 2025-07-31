@@ -46,6 +46,8 @@ class ValentineTheme {
         foregroundColor: lightText,
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: lightText),
+        actionsIconTheme: IconThemeData(color: lightText),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -223,6 +225,8 @@ class ValentineTheme {
         foregroundColor: lightText,
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: lightText),
+        actionsIconTheme: IconThemeData(color: lightText),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

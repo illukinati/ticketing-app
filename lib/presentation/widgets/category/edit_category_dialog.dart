@@ -19,7 +19,6 @@ class EditCategoryDialog extends ConsumerStatefulWidget {
 class _EditCategoryDialogState extends ConsumerState<EditCategoryDialog> {
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
-  late final TextEditingController _colorController;
   late final TextEditingController _sortOrderController;
 
   @override
@@ -27,7 +26,6 @@ class _EditCategoryDialogState extends ConsumerState<EditCategoryDialog> {
     super.initState();
     _nameController = TextEditingController(text: widget.category.name);
     _descriptionController = TextEditingController(text: widget.category.description);
-    _colorController = TextEditingController(text: widget.category.color);
     _sortOrderController = TextEditingController(text: widget.category.sortOrder.toString());
   }
 
@@ -35,7 +33,6 @@ class _EditCategoryDialogState extends ConsumerState<EditCategoryDialog> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _colorController.dispose();
     _sortOrderController.dispose();
     super.dispose();
   }
@@ -64,33 +61,6 @@ class _EditCategoryDialogState extends ConsumerState<EditCategoryDialog> {
               maxLines: 2,
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _colorController,
-                    decoration: const InputDecoration(
-                      labelText: 'Color (Hex)',
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: _parseColor(_colorController.text),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             TextField(
               controller: _sortOrderController,
               decoration: const InputDecoration(
@@ -109,8 +79,7 @@ class _EditCategoryDialogState extends ConsumerState<EditCategoryDialog> {
         ElevatedButton(
           onPressed: () async {
             if (_nameController.text.trim().isNotEmpty &&
-                _descriptionController.text.trim().isNotEmpty &&
-                _colorController.text.trim().isNotEmpty) {
+                _descriptionController.text.trim().isNotEmpty) {
               final sortOrder = int.tryParse(_sortOrderController.text) ?? widget.category.sortOrder;
               
               final result = await ref
@@ -119,7 +88,6 @@ class _EditCategoryDialogState extends ConsumerState<EditCategoryDialog> {
                     id: widget.category.id,
                     name: _nameController.text.trim(),
                     description: _descriptionController.text.trim(),
-                    color: _colorController.text.trim(),
                     sortOrder: sortOrder,
                   );
 
@@ -151,15 +119,4 @@ class _EditCategoryDialogState extends ConsumerState<EditCategoryDialog> {
     );
   }
 
-  Color _parseColor(String colorHex) {
-    try {
-      String hex = colorHex.replaceAll('#', '');
-      if (hex.length == 6) {
-        hex = 'FF$hex';
-      }
-      return Color(int.parse(hex, radix: 16));
-    } catch (e) {
-      return Colors.grey;
-    }
-  }
 }

@@ -13,14 +13,12 @@ class CreateCategoryDialog extends ConsumerStatefulWidget {
 class _CreateCategoryDialogState extends ConsumerState<CreateCategoryDialog> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _colorController = TextEditingController(text: '#B9F2FF');
   final _sortOrderController = TextEditingController(text: '10');
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _colorController.dispose();
     _sortOrderController.dispose();
     super.dispose();
   }
@@ -51,34 +49,6 @@ class _CreateCategoryDialogState extends ConsumerState<CreateCategoryDialog> {
               maxLines: 2,
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _colorController,
-                    decoration: const InputDecoration(
-                      labelText: 'Color (Hex)',
-                      hintText: '#B9F2FF',
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: _parseColor(_colorController.text),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             TextField(
               controller: _sortOrderController,
               decoration: const InputDecoration(
@@ -98,8 +68,7 @@ class _CreateCategoryDialogState extends ConsumerState<CreateCategoryDialog> {
         ElevatedButton(
           onPressed: () async {
             if (_nameController.text.trim().isNotEmpty &&
-                _descriptionController.text.trim().isNotEmpty &&
-                _colorController.text.trim().isNotEmpty) {
+                _descriptionController.text.trim().isNotEmpty) {
               final sortOrder = int.tryParse(_sortOrderController.text) ?? 10;
               
               final result = await ref
@@ -107,7 +76,6 @@ class _CreateCategoryDialogState extends ConsumerState<CreateCategoryDialog> {
                   .createCategory(
                     name: _nameController.text.trim(),
                     description: _descriptionController.text.trim(),
-                    color: _colorController.text.trim(),
                     sortOrder: sortOrder,
                   );
 
@@ -139,15 +107,4 @@ class _CreateCategoryDialogState extends ConsumerState<CreateCategoryDialog> {
     );
   }
 
-  Color _parseColor(String colorHex) {
-    try {
-      String hex = colorHex.replaceAll('#', '');
-      if (hex.length == 6) {
-        hex = 'FF$hex';
-      }
-      return Color(int.parse(hex, radix: 16));
-    } catch (e) {
-      return Colors.grey;
-    }
-  }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../domain/entities/show_entity.dart';
 import '../../domain/entities/purchased_ticket_entity.dart';
 import '../../application/purchased_ticket/purchased_ticket_provider.dart';
@@ -47,11 +46,9 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
           ),
         ),
         backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
-          onPressed: () => context.pop(),
-        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -102,7 +99,10 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
                     child: DropdownButtonFormField<PaymentStatus?>(
                       value: _selectedPaymentStatus,
                       decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -113,8 +113,8 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
                           value: null,
                           child: Text('All Status'),
                         ),
-                        ...PaymentStatus.values.map((status) =>
-                          DropdownMenuItem<PaymentStatus?>(
+                        ...PaymentStatus.values.map(
+                          (status) => DropdownMenuItem<PaymentStatus?>(
                             value: status,
                             child: Text(status.value.toUpperCase()),
                           ),
@@ -147,17 +147,30 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
       loading: () => const SizedBox.shrink(),
       data: (tickets) {
         // Filter out cancelled, expired, and failed tickets
-        final validTickets = tickets.where((ticket) => 
-          ticket.paymentStatus != PaymentStatus.cancelled &&
-          ticket.paymentStatus != PaymentStatus.expired &&
-          ticket.paymentStatus != PaymentStatus.failed
-        ).toList();
-        
+        final validTickets = tickets
+            .where(
+              (ticket) =>
+                  ticket.paymentStatus != PaymentStatus.cancelled &&
+                  ticket.paymentStatus != PaymentStatus.expired &&
+                  ticket.paymentStatus != PaymentStatus.failed,
+            )
+            .toList();
+
         final totalPurchases = validTickets.length;
-        final totalTickets = validTickets.fold<int>(0, (sum, ticket) => sum + ticket.quantity);
-        final paidTickets = validTickets.where((ticket) => ticket.isPaid).length;
-        final pendingTickets = validTickets.where((ticket) => ticket.isPending).length;
-        final usedTickets = validTickets.fold<int>(0, (sum, ticket) => sum + ticket.usedTicketsCount);
+        final totalTickets = validTickets.fold<int>(
+          0,
+          (sum, ticket) => sum + ticket.quantity,
+        );
+        final paidTickets = validTickets
+            .where((ticket) => ticket.isPaid)
+            .length;
+        final pendingTickets = validTickets
+            .where((ticket) => ticket.isPending)
+            .length;
+        final usedTickets = validTickets.fold<int>(
+          0,
+          (sum, ticket) => sum + ticket.usedTicketsCount,
+        );
 
         return Row(
           children: [
@@ -214,16 +227,23 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (tickets) {
         // First filter out expired, failed, and cancelled tickets
-        final validTickets = tickets.where((ticket) => 
-          ticket.paymentStatus != PaymentStatus.cancelled &&
-          ticket.paymentStatus != PaymentStatus.expired &&
-          ticket.paymentStatus != PaymentStatus.failed
-        ).toList();
-        
+        final validTickets = tickets
+            .where(
+              (ticket) =>
+                  ticket.paymentStatus != PaymentStatus.cancelled &&
+                  ticket.paymentStatus != PaymentStatus.expired &&
+                  ticket.paymentStatus != PaymentStatus.failed,
+            )
+            .toList();
+
         // Then apply user's filter selection
         final filteredTickets = _selectedPaymentStatus == null
             ? validTickets
-            : validTickets.where((ticket) => ticket.paymentStatus == _selectedPaymentStatus).toList();
+            : validTickets
+                  .where(
+                    (ticket) => ticket.paymentStatus == _selectedPaymentStatus,
+                  )
+                  .toList();
 
         if (filteredTickets.isEmpty) {
           return Center(
@@ -333,4 +353,3 @@ class _StatItem extends StatelessWidget {
     );
   }
 }
-

@@ -45,6 +45,9 @@ class _ShowListPageState extends ConsumerState<ShowListPage> {
           ),
         ),
         backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        actionsIconTheme: IconThemeData(color: colorScheme.primary),
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [

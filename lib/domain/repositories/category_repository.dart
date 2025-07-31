@@ -7,7 +7,6 @@ abstract class CategoryRepository {
   Future<Either<Failure, CategoryEntity>> createCategory({
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   });
 
@@ -20,7 +19,6 @@ abstract class CategoryRepository {
     required int id,
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   });
 

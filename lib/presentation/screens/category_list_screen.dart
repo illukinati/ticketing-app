@@ -43,6 +43,9 @@ class _CategoryListPageState extends ConsumerState<CategoryListScreen> {
           ),
         ),
         backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
+        actionsIconTheme: IconThemeData(color: colorScheme.secondary),
         elevation: 0,
         actions: [
           IconButton(

@@ -24,7 +24,6 @@ class CategoryNotifier extends StateNotifier<AsyncState<List<CategoryEntity>>> {
   Future<Either<Failure, CategoryEntity>> createCategory({
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   }) async {
     if (name.trim().isEmpty) {
@@ -39,12 +38,6 @@ class CategoryNotifier extends StateNotifier<AsyncState<List<CategoryEntity>>> {
       );
     }
 
-    if (color.trim().isEmpty) {
-      return const Left(
-        ValidationFailure(message: 'Category color cannot be empty'),
-      );
-    }
-
     if (sortOrder < 0) {
       return const Left(
         ValidationFailure(message: 'Sort order must be a positive number'),
@@ -54,7 +47,6 @@ class CategoryNotifier extends StateNotifier<AsyncState<List<CategoryEntity>>> {
     final result = await _repository.createCategory(
       name: name.trim(),
       description: description.trim(),
-      color: color.trim(),
       sortOrder: sortOrder,
     );
 
@@ -68,7 +60,6 @@ class CategoryNotifier extends StateNotifier<AsyncState<List<CategoryEntity>>> {
     required int id,
     required String name,
     required String description,
-    required String color,
     required int sortOrder,
   }) async {
     if (name.trim().isEmpty) {
@@ -83,12 +74,6 @@ class CategoryNotifier extends StateNotifier<AsyncState<List<CategoryEntity>>> {
       );
     }
 
-    if (color.trim().isEmpty) {
-      return const Left(
-        ValidationFailure(message: 'Category color cannot be empty'),
-      );
-    }
-
     if (sortOrder < 0) {
       return const Left(
         ValidationFailure(message: 'Sort order must be a positive number'),
@@ -99,7 +84,6 @@ class CategoryNotifier extends StateNotifier<AsyncState<List<CategoryEntity>>> {
       id: id,
       name: name.trim(),
       description: description.trim(),
-      color: color.trim(),
       sortOrder: sortOrder,
     );
 
