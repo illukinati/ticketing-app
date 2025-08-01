@@ -1,4 +1,4 @@
-import 'package:yono_bakrie_app/domain/values_object/date.dart';
+import 'package:yb_management/domain/values_object/date.dart';
 
 import '../../domain/entities/event_ticket_entity.dart';
 import 'show_model.dart';

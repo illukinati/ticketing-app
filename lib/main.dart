@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yono_bakrie_app/presentation/core/router.dart';
-import 'package:yono_bakrie_app/presentation/core/theme.dart';
+import 'package:yb_management/presentation/core/router.dart';
+import 'package:yb_management/presentation/core/theme.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");

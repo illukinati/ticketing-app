@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:yono_bakrie_app/application/core/async_state.dart';
+import 'package:yb_management/application/core/async_state.dart';
 import '../../core/utils/error_handler.dart';
 import '../../../domain/entities/event_ticket_entity.dart';
 import '../../../domain/entities/show_entity.dart';

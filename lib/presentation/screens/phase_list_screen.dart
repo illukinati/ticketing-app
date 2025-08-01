@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yono_bakrie_app/application/core/async_state.dart';
+import 'package:yb_management/application/core/async_state.dart';
 import '../../application/phase/phase_provider.dart';
 import '../../domain/entities/phase_entity.dart';
 import '../widgets/phase/phase_list_item.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yono_bakrie_app/domain/values_object/failure.dart';
+import 'package:yb_management/domain/values_object/failure.dart';
 
 class ErrorHandler {
   static void showError(BuildContext context, Failure failure) {

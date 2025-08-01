@@ -1,5 +1,5 @@
-name: yono_bakrie_app
-description: "A new Flutter project."
+name: yb_management
+description: "YB Management - Event management and ticketing app"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
