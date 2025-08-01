@@ -45,6 +45,7 @@ class EventTicketEntity {
   final TicketStatus status;
   final int originalQty;
   final int movedQty;
+  final int availableQuantity;
   final ShowEntity show;
   final PhaseEntity phase;
   final CategoryEntity category;
@@ -61,6 +62,7 @@ class EventTicketEntity {
     required this.status,
     required this.originalQty,
     required this.movedQty,
+    required this.availableQuantity,
     required this.show,
     required this.phase,
     required this.category,
@@ -82,6 +84,7 @@ class EventTicketEntity {
           status == other.status &&
           originalQty == other.originalQty &&
           movedQty == other.movedQty &&
+          availableQuantity == other.availableQuantity &&
           show == other.show &&
           phase == other.phase &&
           category == other.category;
@@ -99,13 +102,14 @@ class EventTicketEntity {
       status.hashCode ^
       originalQty.hashCode ^
       movedQty.hashCode ^
+      availableQuantity.hashCode ^
       show.hashCode ^
       phase.hashCode ^
       category.hashCode;
 
   @override
   String toString() {
-    return 'EventTicketEntity{id: $id, qty: $qty, price: $price, showId: $showId, phaseId: $phaseId, categoryId: $categoryId, status: $status, originalQty: $originalQty, movedQty: $movedQty, createdAt: $createdAt, updatedAt: $updatedAt, show: $show, phase: $phase, category: $category}';
+    return 'EventTicketEntity{id: $id, qty: $qty, price: $price, showId: $showId, phaseId: $phaseId, categoryId: $categoryId, status: $status, originalQty: $originalQty, movedQty: $movedQty, availableQuantity: $availableQuantity, createdAt: $createdAt, updatedAt: $updatedAt, show: $show, phase: $phase, category: $category}';
   }
 
   // Helper methods
@@ -113,11 +117,20 @@ class EventTicketEntity {
   bool get isUnavailable => status == TicketStatus.unavailable;
   bool get isSoldOut => status == TicketStatus.soldOut;
   
-  int get availableQty => qty;
-  int get soldQty => originalQty - qty;
+  // Available quantity calculation
+  // Use the available_quantity field from backend which represents actual available tickets
+  int get availableQty {
+    return availableQuantity;
+  }
+  
+  int get soldQty => originalQty - qty; // Tickets sold (original - remaining)
+  int get reservedQty => movedQty; // Tickets moved/reserved for other purposes
+  
   double get totalValue => price * originalQty;
-  double get availableValue => price * qty;
+  double get availableValue => price * availableQty;
   double get soldValue => price * soldQty;
+  double get reservedValue => price * reservedQty;
   
   bool get hasMoved => movedQty > 0;
+  bool get hasAvailableTickets => availableQty > 0 && isAvailable;
 }

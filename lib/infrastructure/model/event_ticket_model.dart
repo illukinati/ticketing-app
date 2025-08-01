@@ -17,6 +17,7 @@ class EventTicketModel {
   final String status;
   final int originalQty;
   final int movedQty;
+  final int availableQuantity;
   final ShowModel show;
   final PhaseModel phase;
   final CategoryModel category;
@@ -33,6 +34,7 @@ class EventTicketModel {
     required this.status,
     required this.originalQty,
     required this.movedQty,
+    required this.availableQuantity,
     required this.show,
     required this.phase,
     required this.category,
@@ -51,6 +53,7 @@ class EventTicketModel {
       status: json['status'] as String? ?? 'available',
       originalQty: json['original_qty'] as int? ?? 0,
       movedQty: json['moved_qty'] as int? ?? 0,
+      availableQuantity: json['available_quantity'] as int? ?? 0,
       show: ShowModel.fromJson(json['show'] as Map<String, dynamic>),
       phase: PhaseModel.fromJson(json['phase'] as Map<String, dynamic>),
       category: CategoryModel.fromJson(
@@ -72,6 +75,7 @@ class EventTicketModel {
       'status': status,
       'original_qty': originalQty,
       'moved_qty': movedQty,
+      'available_quantity': availableQuantity,
       'show': show.toJson(),
       'phase': phase.toJson(),
       'category': category.toJson(),
@@ -91,6 +95,7 @@ class EventTicketModel {
       status: TicketStatus.fromString(status),
       originalQty: originalQty,
       movedQty: movedQty,
+      availableQuantity: availableQuantity,
       show: show.toEntity(),
       phase: phase.toEntity(),
       category: category.toEntity(),
@@ -110,6 +115,7 @@ class EventTicketModel {
       status: entity.status.value,
       originalQty: entity.originalQty,
       movedQty: entity.movedQty,
+      availableQuantity: entity.availableQuantity,
       show: ShowModel.fromEntity(entity.show),
       phase: PhaseModel.fromEntity(entity.phase),
       category: CategoryModel.fromEntity(entity.category),

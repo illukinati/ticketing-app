@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import '../../domain/values_object/failure.dart';
 import '../core/api_constants.dart';
 import '../core/dio_error_handler.dart';
@@ -39,20 +40,25 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
   final Dio dio;
 
   EventTicketRemoteDataSourceImpl({Dio? dio})
-      : dio = dio ??
-            Dio(
-              BaseOptions(
-                baseUrl: ApiConstants.baseUrl,
-                headers: ApiConstants.headers,
-                connectTimeout: const Duration(seconds: 30),
-                receiveTimeout: const Duration(seconds: 30),
-              ),
-            );
+    : dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: ApiConstants.baseUrl,
+              headers: ApiConstants.headers,
+              connectTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 30),
+            ),
+          );
 
   @override
-  Future<List<EventTicketModel>> getEventTicketsByCategoryId(int categoryId) async {
+  Future<List<EventTicketModel>> getEventTicketsByCategoryId(
+    int categoryId,
+  ) async {
     try {
-      final response = await dio.get('${ApiConstants.categories}/$categoryId${ApiConstants.eventTickets}');
+      final response = await dio.get(
+        '${ApiConstants.categories}/$categoryId${ApiConstants.eventTickets}',
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = response.data;
@@ -73,11 +79,34 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
   @override
   Future<List<EventTicketModel>> getEventTicketsByShowId(int showId) async {
     try {
-      final response = await dio.get('${ApiConstants.shows}/$showId${ApiConstants.eventTickets}');
+      final response = await dio.get(
+        '${ApiConstants.shows}/$showId${ApiConstants.eventTickets}',
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = response.data;
-        return jsonList.map((json) => EventTicketModel.fromJson(json)).toList();
+        final tickets = jsonList
+            .map((json) => EventTicketModel.fromJson(json))
+            .toList();
+
+        // Debug print to check ticket quantities from backend
+        debugPrint('🎫 Event Tickets for Show $showId:');
+        for (var ticket in tickets) {
+          debugPrint(
+            '   Ticket ID: ${ticket.id} (${ticket.category.name} - ${ticket.phase.name})',
+          );
+          debugPrint('     Original Qty: ${ticket.originalQty}');
+          debugPrint('     Current Qty: ${ticket.qty}');
+          debugPrint('     Available Quantity: ${ticket.availableQuantity}');
+          debugPrint('     Moved Qty: ${ticket.movedQty}');
+          debugPrint(
+            '     Calculated Sold: ${ticket.originalQty - ticket.qty}',
+          );
+          debugPrint('     Status: ${ticket.status}');
+          debugPrint('     Available Qty (now using available_quantity): ${ticket.availableQuantity}');
+        }
+
+        return tickets;
       } else {
         throw ServerFailure(
           message: 'Failed to load event tickets by show',
@@ -110,10 +139,13 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
           'status': status,
           'phase_id': phaseId,
           'category_id': categoryId,
-        }
+        },
       };
 
-      final response = await dio.post('${ApiConstants.shows}/$showId${ApiConstants.eventTickets}', data: data);
+      final response = await dio.post(
+        '${ApiConstants.shows}/$showId${ApiConstants.eventTickets}',
+        data: data,
+      );
 
       if (response.statusCode == 201) {
         return EventTicketModel.fromJson(response.data);
@@ -154,8 +186,10 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
         'moved_qty': movedQty,
       };
 
-
-      final response = await dio.patch('${ApiConstants.eventTickets}/$id', data: data);
+      final response = await dio.patch(
+        '${ApiConstants.eventTickets}/$id',
+        data: data,
+      );
 
       if (response.statusCode == 200) {
         return EventTicketModel.fromJson(response.data);
@@ -175,7 +209,9 @@ class EventTicketRemoteDataSourceImpl implements EventTicketRemoteDataSource {
   @override
   Future<void> deleteEventTicket(int showId, int ticketId) async {
     try {
-      final response = await dio.delete('${ApiConstants.shows}/$showId${ApiConstants.eventTickets}/$ticketId');
+      final response = await dio.delete(
+        '${ApiConstants.shows}/$showId${ApiConstants.eventTickets}/$ticketId',
+      );
 
       if (response.statusCode != 204 && response.statusCode != 200) {
         throw ServerFailure(

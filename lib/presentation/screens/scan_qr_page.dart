@@ -5,6 +5,10 @@ import '../../application/ticket_validation/ticket_validation_provider.dart';
 import '../../application/purchased_ticket/purchased_ticket_provider.dart';
 import '../../domain/entities/ticket_validation_entity.dart';
 import '../../domain/entities/purchased_ticket_entity.dart';
+import '../widgets/scan_qr/qr_scanner_overlay.dart';
+import '../widgets/scan_qr/qr_camera_placeholder.dart';
+import '../widgets/scan_qr/qr_validation_dialog.dart';
+import '../widgets/scan_qr/qr_camera_error.dart';
 
 class ScanQRPage extends ConsumerStatefulWidget {
   const ScanQRPage({super.key});
@@ -136,280 +140,12 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
     TicketValidationEntity validation,
     PurchasedTicketEntity? ownerInfo,
   ) {
-    final textTheme = Theme.of(context).textTheme;
-
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(
-              validation.isValid 
-                  ? Icons.check_circle 
-                  : validation.isAlreadyUsed 
-                      ? Icons.warning 
-                      : Icons.error,
-              color: validation.isValid 
-                  ? Colors.green 
-                  : validation.isAlreadyUsed 
-                      ? Colors.orange 
-                      : Colors.red,
-              size: 28,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                validation.message,
-                style: textTheme.titleLarge?.copyWith(
-                  color: validation.isValid 
-                      ? Colors.green 
-                      : validation.isAlreadyUsed 
-                          ? Colors.orange 
-                          : Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (validation.ticket != null) ...[
-              // Owner Information Section
-              if (ownerInfo != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Colors.blue.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.person, color: Colors.blue, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Informasi Pemilik Tiket',
-                            style: textTheme.titleSmall?.copyWith(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow('Nama', ownerInfo.name),
-                      const SizedBox(height: 6),
-                      _buildInfoRow('Telepon', ownerInfo.phone),
-                      const SizedBox(height: 6),
-                      _buildInfoRow('Email', ownerInfo.email),
-                      const SizedBox(height: 6),
-                      _buildInfoRow(
-                        'Total Tiket',
-                        '${ownerInfo.quantity} tiket',
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 70,
-                            child: Text(
-                              'Digunakan:',
-                              style: textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              '${ownerInfo.usedTicketsCount} dari ${ownerInfo.quantity} tiket',
-                              style: textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: ownerInfo.allTicketsUsed
-                                    ? Colors.red
-                                    : Colors.orange,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Ticket Information Section
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.confirmation_number,
-                          color: Colors.green,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Informasi Tiket',
-                          style: textTheme.titleSmall?.copyWith(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      'ID Tiket',
-                      '#${validation.ticket!.ticketId}',
-                    ),
-                    const SizedBox(height: 6),
-                    _buildInfoRow(
-                      'Nomor Tiket',
-                      '${validation.ticket!.ticketNumber}',
-                    ),
-                    const SizedBox(height: 6),
-                    _buildInfoRow(
-                      'Event',
-                      validation.ticket!.event,
-                    ),
-                    const SizedBox(height: 6),
-                    _buildInfoRow(
-                      'Kategori',
-                      '${validation.ticket!.category} - ${validation.ticket!.phase}',
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 70,
-                          child: Text(
-                            'Status:',
-                            style: textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: validation.ticket!.used
-                                  ? Colors.red.withValues(alpha: 0.1)
-                                  : Colors.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: validation.ticket!.used
-                                    ? Colors.red.withValues(alpha: 0.3)
-                                    : Colors.green.withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  validation.ticket!.used
-                                      ? Icons.cancel
-                                      : Icons.check_circle,
-                                  size: 14,
-                                  color: validation.ticket!.used
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  validation.ticket!.used
-                                      ? 'Sudah Digunakan'
-                                      : 'Belum Digunakan',
-                                  style: textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: validation.ticket!.used
-                                        ? Colors.red
-                                        : Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (validation.ticket!.usedAt != null) ...[
-                      const SizedBox(height: 6),
-                      _buildInfoRow(
-                        'Digunakan',
-                        _formatDateTime(validation.ticket!.usedAt!),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ] else ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.warning, color: Colors.red, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        validation.message,
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.red,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Tutup'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _toggleCamera();
-            },
-            child: const Text('Scan Lagi'),
-          ),
-        ],
+      builder: (context) => QRValidationDialog(
+        validation: validation,
+        ownerInfo: ownerInfo,
+        onScanAgain: _toggleCamera,
       ),
     );
   }
@@ -444,40 +180,9 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 70,
-          child: Text(
-            '$label:',
-            style: textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} '
-        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -533,150 +238,17 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
               controller: controller,
               onDetect: _onDetect,
               errorBuilder: (context, error, child) {
-                return Container(
-                  color: Colors.black,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.camera_alt_outlined,
-                          size: 80,
-                          color: Colors.white.withValues(alpha: 0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Camera Error',
-                          style: textTheme.headlineSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          error.errorDetails?.message ??
-                              'Unable to access camera',
-                          textAlign: TextAlign.center,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        FilledButton(
-                          onPressed: () => controller.start(),
-                          child: const Text('Try Again'),
-                        ),
-                      ],
-                    ),
-                  ),
+                return QRCameraError(
+                  error: error,
+                  onTryAgain: () => controller.start(),
                 );
               },
             )
           else
-            Container(
-              color: Colors.black,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.qr_code_scanner,
-                      size: 120,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(height: 32),
-                    Text(
-                      'QR Code Scanner',
-                      style: textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Tap the camera button to start scanning',
-                      textAlign: TextAlign.center,
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-                    FilledButton.icon(
-                      onPressed: _toggleCamera,
-                      icon: const Icon(Icons.videocam),
-                      label: const Text('Start Camera'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            QRCameraPlaceholder(onStartCamera: _toggleCamera),
 
-          // Scanning overlay and instructions (only when camera is active)
-          if (isCameraActive) ...[
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.center,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-
-            // Scanning frame
-            Center(
-              child: Container(
-                width: 280,
-                height: 280,
-                decoration: BoxDecoration(
-                  border: Border.all(color: colorScheme.primary, width: 3),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-            ),
-
-            // Instructions
-            Positioned(
-              bottom: 100,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        'Position QR code within the frame',
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          // Scanning overlay (only when camera is active)
+          if (isCameraActive) const QRScannerOverlay(),
         ],
       ),
     );

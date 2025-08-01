@@ -157,10 +157,12 @@ class _PurchasedTicketsPageState extends ConsumerState<PurchasedTicketsPage> {
             .toList();
 
         final totalPurchases = validTickets.length;
-        final totalTickets = validTickets.fold<int>(
-          0,
-          (sum, ticket) => sum + ticket.quantity,
-        );
+        final totalTickets = validTickets
+            .where((ticket) => ticket.isPaid)
+            .fold<int>(
+              0,
+              (sum, ticket) => sum + ticket.quantity,
+            );
         final paidTickets = validTickets
             .where((ticket) => ticket.isPaid)
             .length;
