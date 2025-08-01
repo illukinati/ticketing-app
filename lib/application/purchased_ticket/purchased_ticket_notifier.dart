@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 import '../../domain/entities/purchased_ticket_entity.dart';
 import '../../domain/repositories/purchased_ticket_repository.dart';
+import '../../domain/values_object/failure.dart';
 import '../core/async_state.dart';
 
 // Notifier for show-specific purchased tickets
@@ -24,5 +26,9 @@ class PurchasedTicketByShowNotifier
 
   void refresh(int showId) {
     loadPurchasedTicketsByShow(showId);
+  }
+
+  Future<Either<Failure, void>> resendEmail(int purchaseId) async {
+    return await _repository.resendEmail(purchaseId);
   }
 }

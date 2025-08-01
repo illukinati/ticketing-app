@@ -28,7 +28,6 @@ class TicketValidationRemoteDataSourceImpl
   @override
   Future<TicketValidationModel> validateTicket({required String token}) async {
     try {
-      debugPrint('🌐 API Call: ${ApiConstants.ticketsValidate}/$token');
       final response = await dio.get('${ApiConstants.ticketsValidate}/$token');
 
       if (response.statusCode == 200) {

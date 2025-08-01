@@ -8,4 +8,7 @@ abstract class PurchasedTicketRepository {
 
   // Get single purchased ticket by ID
   Future<Either<Failure, PurchasedTicketEntity>> getPurchasedTicketById(int id);
+
+  // Resend email for purchased ticket
+  Future<Either<Failure, void>> resendEmail(int purchaseId);
 }

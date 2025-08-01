@@ -79,9 +79,6 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
   }
 
   Future<void> _validateTicket(String token) async {
-    debugPrint('🔍 QR Scan Result: $token');
-    debugPrint('🔍 QR Length: ${token.length}');
-    debugPrint('🔍 QR Type: ${token.runtimeType}');
 
     // Stop scanner temporarily to prevent multiple scans
     controller.stop();

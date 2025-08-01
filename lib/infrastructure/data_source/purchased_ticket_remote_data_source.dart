@@ -8,6 +8,7 @@ import '../model/purchased_ticket_model.dart';
 abstract class PurchasedTicketRemoteDataSource {
   Future<List<PurchasedTicketModel>> getPurchasedTicketsByShowId(int showId);
   Future<PurchasedTicketModel> getPurchasedTicketById(int id);
+  Future<void> resendEmail(int purchaseId);
 }
 
 class PurchasedTicketRemoteDataSourceImpl
@@ -30,14 +31,11 @@ class PurchasedTicketRemoteDataSourceImpl
     int showId,
   ) async {
     try {
-      debugPrint('🌐 API Call: ${ApiConstants.baseUrl}${ApiConstants.shows}/$showId/purchases');
       final response = await dio.get('${ApiConstants.shows}/$showId/purchases');
 
       if (response.statusCode == 200) {
-        debugPrint('✅ API Response: ${response.data}');
         final List<dynamic> jsonList = response.data;
         final result = jsonList.map((json) => PurchasedTicketModel.fromJson(json)).toList();
-        debugPrint('✅ Parsed ${result.length} purchased tickets');
         return result;
       } else {
         throw ServerFailure(
@@ -55,11 +53,9 @@ class PurchasedTicketRemoteDataSourceImpl
   @override
   Future<PurchasedTicketModel> getPurchasedTicketById(int id) async {
     try {
-      debugPrint('🌐 API Call: ${ApiConstants.baseUrl}${ApiConstants.purchases}/$id');
       final response = await dio.get('${ApiConstants.purchases}/$id');
 
       if (response.statusCode == 200) {
-        debugPrint('✅ API Response: ${response.data}');
         return PurchasedTicketModel.fromJson(response.data);
       } else {
         throw ServerFailure(
@@ -70,6 +66,34 @@ class PurchasedTicketRemoteDataSourceImpl
     } on DioException catch (e) {
       throw DioErrorHandler.handleDioError(e);
     } catch (e) {
+      throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
+    }
+  }
+
+  @override
+  Future<void> resendEmail(int purchaseId) async {
+    try {
+      debugPrint('🌐 API Call: ${ApiConstants.baseUrl}/api${ApiConstants.purchases}/$purchaseId/resend_email');
+      final response = await dio.post('/api${ApiConstants.purchases}/$purchaseId/resend_email');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        debugPrint('✅ Email resent successfully');
+        return;
+      } else {
+        debugPrint('❌ Resend email failed - Status: ${response.statusCode}, Response: ${response.data}');
+        throw ServerFailure(
+          message: 'Failed to resend email',
+          code: response.statusCode?.toString(),
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ Resend email DioException - ${e.type}: ${e.message}');
+      if (e.response != null) {
+        debugPrint('❌ API Response - Status: ${e.response?.statusCode}, Data: ${e.response?.data}');
+      }
+      throw DioErrorHandler.handleDioError(e);
+    } catch (e) {
+      debugPrint('❌ Resend email unknown error: $e');
       throw UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi');
     }
   }

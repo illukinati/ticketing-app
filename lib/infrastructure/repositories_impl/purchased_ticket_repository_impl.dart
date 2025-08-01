@@ -42,4 +42,18 @@ class PurchasedTicketRepositoryImpl implements PurchasedTicketRepository {
       return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> resendEmail(int purchaseId) async {
+    try {
+      await remoteDataSource.resendEmail(purchaseId);
+      return const Right(null);
+    } on Failure catch (e) {
+      return Left(e);
+    } on DioException catch (e) {
+      return Left(DioErrorHandler.handleDioError(e));
+    } catch (e) {
+      return Left(UnknownFailure(message: 'Terjadi kesalahan, silakan coba lagi'));
+    }
+  }
 }
