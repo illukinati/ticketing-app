@@ -1,6 +1,8 @@
 import '../../domain/entities/purchased_ticket_entity.dart';
 import '../../domain/entities/individual_ticket_entity.dart';
+import '../../domain/entities/purchase_event_ticket_entity.dart';
 import 'individual_ticket_model.dart';
+import 'purchase_event_ticket_model.dart';
 
 class PurchasedTicketModel extends PurchasedTicketEntity {
   const PurchasedTicketModel({
@@ -12,6 +14,7 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
     required super.paymentStatus,
     super.paidAt,
     required super.individualTickets,
+    super.eventTicket,
   });
 
   factory PurchasedTicketModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +31,9 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
       individualTickets: (json['individual_tickets'] as List<dynamic>? ?? [])
           .map((ticket) => IndividualTicketModel.fromJson(ticket as Map<String, dynamic>))
           .toList(),
+      eventTicket: json['event_ticket'] != null
+          ? PurchaseEventTicketModel.fromJson(json['event_ticket'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -43,6 +49,9 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
       individualTickets: entity.individualTickets
           .map((ticket) => IndividualTicketModel.fromEntity(ticket))
           .toList(),
+      eventTicket: entity.eventTicket != null
+          ? PurchaseEventTicketModel.fromEntity(entity.eventTicket!)
+          : null,
     );
   }
 
@@ -59,6 +68,9 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
       'individual_tickets': individualTickets
           .map((ticket) => (ticket as IndividualTicketModel).toJson())
           .toList(),
+      'event_ticket': eventTicket != null
+          ? (eventTicket as PurchaseEventTicketModel).toJson()
+          : null,
     };
   }
 
@@ -74,6 +86,9 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
       individualTickets: individualTickets
           .map((ticket) => (ticket as IndividualTicketModel).toEntity())
           .toList(),
+      eventTicket: eventTicket != null
+          ? (eventTicket as PurchaseEventTicketModel).toEntity()
+          : null,
     );
   }
 
@@ -87,6 +102,7 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
     PaymentStatus? paymentStatus,
     DateTime? paidAt,
     List<IndividualTicketEntity>? individualTickets,
+    PurchaseEventTicketEntity? eventTicket,
   }) {
     return PurchasedTicketModel(
       id: id ?? this.id,
@@ -105,6 +121,15 @@ class PurchasedTicketModel extends PurchasedTicketEntity {
           ? ticket 
           : IndividualTicketModel.fromEntity(ticket)
       ).toList(),
+      eventTicket: eventTicket != null
+          ? (eventTicket is PurchaseEventTicketModel
+              ? eventTicket
+              : PurchaseEventTicketModel.fromEntity(eventTicket))
+          : this.eventTicket != null
+              ? (this.eventTicket is PurchaseEventTicketModel
+                  ? this.eventTicket
+                  : PurchaseEventTicketModel.fromEntity(this.eventTicket!))
+              : null,
     );
   }
 }

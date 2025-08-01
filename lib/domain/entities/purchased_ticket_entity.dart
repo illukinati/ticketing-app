@@ -1,4 +1,5 @@
 import 'individual_ticket_entity.dart';
+import 'purchase_event_ticket_entity.dart';
 
 enum PaymentStatus {
   pending('pending'),
@@ -27,6 +28,7 @@ class PurchasedTicketEntity {
   final PaymentStatus paymentStatus;
   final DateTime? paidAt;
   final List<IndividualTicketEntity> individualTickets;
+  final PurchaseEventTicketEntity? eventTicket;
 
   const PurchasedTicketEntity({
     required this.id,
@@ -37,6 +39,7 @@ class PurchasedTicketEntity {
     required this.paymentStatus,
     this.paidAt,
     required this.individualTickets,
+    this.eventTicket,
   });
 
   factory PurchasedTicketEntity.fromJson(Map<String, dynamic> json) {
@@ -53,6 +56,9 @@ class PurchasedTicketEntity {
       individualTickets: (json['individual_tickets'] as List<dynamic>)
           .map((ticket) => IndividualTicketEntity.fromJson(ticket as Map<String, dynamic>))
           .toList(),
+      eventTicket: json['event_ticket'] != null
+          ? PurchaseEventTicketEntity.fromJson(json['event_ticket'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -66,6 +72,7 @@ class PurchasedTicketEntity {
       'payment_status': paymentStatus.value,
       'paid_at': paidAt?.toIso8601String(),
       'individual_tickets': individualTickets.map((ticket) => ticket.toJson()).toList(),
+      'event_ticket': eventTicket?.toJson(),
     };
   }
 
@@ -95,6 +102,7 @@ class PurchasedTicketEntity {
     PaymentStatus? paymentStatus,
     DateTime? paidAt,
     List<IndividualTicketEntity>? individualTickets,
+    PurchaseEventTicketEntity? eventTicket,
   }) {
     return PurchasedTicketEntity(
       id: id ?? this.id,
@@ -105,6 +113,7 @@ class PurchasedTicketEntity {
       paymentStatus: paymentStatus ?? this.paymentStatus,
       paidAt: paidAt ?? this.paidAt,
       individualTickets: individualTickets ?? this.individualTickets,
+      eventTicket: eventTicket ?? this.eventTicket,
     );
   }
 
