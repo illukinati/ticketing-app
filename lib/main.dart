@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ValentineTheme.lightTheme,
       darkTheme: ValentineTheme.darkTheme,
       themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

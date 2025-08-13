@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -24,6 +26,49 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan QR codes for event tickets</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app does not use microphone</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app does not access photo library</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app does not use location services</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app does not use location services</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app does not access contacts</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>This app does not access calendar</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>This app does not access reminders</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This app does not use motion sensors</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app does not use speech recognition</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app does not use Face ID</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This app does not use Bluetooth</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app does not use Bluetooth</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app does not access Apple Music</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>This app does not access health data</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>This app does not update health data</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<false/>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -31,21 +76,13 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>This app needs camera access to scan QR codes</string>
 </dict>
 </plist>

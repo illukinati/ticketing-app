@@ -101,11 +101,13 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
         .read(ticketValidationProvider.notifier)
         .validateTicket(token: token);
 
+    // Always close loading dialog first before showing any other dialog
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+
     result.fold(
       (failure) {
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
         _showErrorSnackbar(failure.message);
       },
       (validation) async {
@@ -124,11 +126,6 @@ class _ScanQRPageState extends ConsumerState<ScanQRPage>
               ownerInfo = purchase;
             },
           );
-        }
-
-        // Close loading dialog
-        if (mounted) {
-          Navigator.of(context).pop();
         }
 
         _showValidationResult(validation, ownerInfo);

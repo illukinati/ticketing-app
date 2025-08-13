@@ -193,8 +193,12 @@ class _TicketInfoSection extends StatelessWidget {
             label: 'Kategori',
             value: '${validation.ticket!.category} - ${validation.ticket!.phase}',
           ),
-          const SizedBox(height: 6),
-          _TicketStatusRow(ticket: validation.ticket!),
+          // Show status row only when ticket was already used (validation.isAlreadyUsed)
+          // Hide it for successful first-time validations
+          if (validation.isAlreadyUsed) ...[
+            const SizedBox(height: 6),
+            _TicketStatusRow(ticket: validation.ticket!),
+          ],
           if (validation.ticket!.usedAt != null) ...[
             const SizedBox(height: 6),
             _InfoRow(
